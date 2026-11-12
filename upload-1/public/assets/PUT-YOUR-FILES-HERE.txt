@@ -1,0 +1,24 @@
+Drop your files into these folders using the names listed in content/site.ts.
+Anything missing shows as a soft labelled placeholder on the site.
+
+photos/   hero-camera-1.jpg, hero-camera-2.jpg, hero-camera-3.jpg,
+          hero-polaroid.jpg, badge-headshot.jpg,
+          booth-1.jpg, booth-2.jpg, booth-3.jpg, booth-4.jpg,
+          service-pr.jpg, service-events.jpg, service-trips.jpg, service-ugc.jpg
+
+cutouts/  pr.png, events.png, trips.png, ugc.png   (transparent PNG, full body)
+
+videos/   featured.mp4 + featured.jpg
+          boathouse.mp4 + boathouse.jpg
+          stranger-things-luna-park.mp4 + stranger-things-luna-park.jpg
+          video-3.mp4 + video-3.jpg
+          video-4.mp4 + video-4.jpg
+          belvedere.mp4 + belvedere.jpg
+          zootopia-2.mp4 + zootopia-2.jpg
+          casetify.mp4 + casetify.jpg
+          (keep each video under ~4 MB, 720p)
+
+See README.md for more detail.
+
+music/    track-1.mp3, track-2.mp3, track-3.mp3   (songs for the hero iPod;
+          set titles in content/site.ts → music. Only use music you have the rights to.)
