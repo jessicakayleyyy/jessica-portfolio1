@@ -9,7 +9,8 @@ import type { Clip } from "@/content/site";
  * If a browser can't play it, the poster picture shows instead (never a blank box).
  * With no file set at all, a labelled placeholder shows.
  */
-export function Video({ clip, className = "" }: { clip: Clip; className?: string }) {
+/** eager: start loading + playing straight away (used for hover previews and pop-ups) */
+export function Video({ clip, className = "", eager = false }: { clip: Clip; className?: string; eager?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [failed, setFailed] = useState(false);
   const reduce = useReducedMotion();
@@ -49,7 +50,8 @@ export function Video({ clip, className = "" }: { clip: Clip; className?: string
       muted
       loop
       playsInline
-      preload="none"
+      preload={eager ? "auto" : "none"}
+      autoPlay={eager && !reduce}
       poster={clip.poster}
       aria-label={clip.label}
       onError={() => {
