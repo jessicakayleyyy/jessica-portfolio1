@@ -39,6 +39,7 @@ export const DEFS = `
     <pattern id="plaid" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#F3CAD5"/><rect y="4" width="10" height="1.4" fill="#8A5A50" fill-opacity=".45"/><rect x="4" width="1.4" height="10" fill="#8A5A50" fill-opacity=".45"/><rect y="8.3" width="10" height=".5" fill="#fff"/><rect x="8.3" width=".5" height="10" fill="#fff"/></pattern>
     <pattern id="cow" width="12" height="9" patternUnits="userSpaceOnUse"><rect width="12" height="9" fill="#FBF7EC"/><path d="M1 1 q2.5 -1 3.5 1.2 q-.5 2 -2.6 1.6 q-1.4 -.4 -.9 -2.8z M7.5 4.5 q2.4 -.6 3.2 1.4 q-.6 1.8 -2.6 1.4 q-1.4 -.8 -.6 -2.8z" fill="#2B2526"/></pattern>
     <pattern id="beads" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#F8EEDC"/><circle cx="1.5" cy="1.5" r="1" fill="#fff" stroke="#E2D3B8" stroke-width=".3"/><circle cx="4.5" cy="4.5" r="1" fill="#fff" stroke="#E2D3B8" stroke-width=".3"/><circle cx="4.5" cy="1.5" r=".5" fill="#F4C9D6"/></pattern>
+    <clipPath id="feetOnly" clipPathUnits="userSpaceOnUse"><rect x="0" y="427" width="200" height="40"/></clipPath>
     <pattern id="aquadots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#7FD6D2"/><circle cx="3" cy="3" r="1.3" fill="#fff"/></pattern>
     <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#fff"/><circle cx="3.5" cy="3.5" r="1.5" fill="#2E2526"/></pattern>
     
@@ -87,12 +88,16 @@ const WAVES_BACK = `
   <path fill="none" style="stroke:#E2BC92;stroke-opacity:.75;stroke-width:1.1" d="M63 104 C59 114 64 122 60 132 M137 104 C141 114 136 122 140 132 M57 160 C55 168 58 176 62 184 M143 160 C145 168 142 176 138 184"/>
 `;
 export const HAIR_BACK = hairLayer(WAVES_BACK);
-export const BODY = parts(`
+const BODY_PARTS = parts(`
   <path fill="${SKIN}" d="M70 97 Q60 104 59 130 Q57 160 58 172 Q58 205 60 236 L68 236 Q68 205 67 172 Q70 150 74 118 Z M130 97 Q140 104 141 130 Q143 160 142 172 Q142 205 140 236 L132 236 Q132 205 133 172 Q130 150 126 118 Z"/>
   <path fill="${SKIN}" d="M60 236 Q58 248 62 254 Q66 254 68 236 Z M140 236 Q142 248 138 254 Q134 254 132 236 Z"/>
   <path fill="${SKIN}" d="M93 70 L93 89 Q72 90 68 100 L77 112 Q80 140 84 165 Q76 185 74 205 Q78 265 82 320 Q85 370 89 422 L96 422 Q95 370 94 320 Q97 270 99 232 L101 232 Q103 270 106 320 Q105 370 104 422 L111 422 Q115 370 118 320 Q122 265 126 205 Q124 185 116 165 Q120 140 123 112 L132 100 Q128 90 107 89 L107 70 Z"/>
   <path fill="${SKIN}" d="M88 416 L96 416 Q97.5 430 94.5 445 Q92 450 89.5 445 Q86.5 430 88 416 Z M112 416 L104 416 Q102.5 430 105.5 445 Q108 450 110.5 445 Q113.5 430 112 416 Z"/>
   <path fill="${SKIN}" d="M80 47 C80 33 89 27 100 27 C111 27 120 33 120 47 C120 62 112 76 100 78 C88 76 80 62 80 47 Z"/>`);
+// Smooth, rounded shoulders: covers the joins between arms and body, which show once the hair is up
+const SHOULDERS = `<g class="fill" filter="url(#soft)" transform="translate(1.3 .9)"><path fill="${SKIN}" d="M93 87 Q74 88.5 68 96.5 Q61 103 59.6 116 L66 119 L75 118.5 L79.5 111 L93 106 Z M107 87 Q126 88.5 132 96.5 Q139 103 140.4 116 L134 119 L125 118.5 L120.5 111 L107 106 Z"/></g>` +
+  `<g class="ink" filter="url(#sketch)"><path fill="none" d="M93 89 Q74 89.6 68.4 96.8 Q61.6 103.4 60 118 M107 89 Q126 89.6 131.6 96.8 Q138.4 103.4 140 118 M74 119.5 Q76 116.5 78.4 114 M126 119.5 Q124 116.5 121.6 114"/></g>`;
+export const BODY = BODY_PARTS + SHOULDERS;
 // Leopard-print bra: her base layer, hidden as soon as she has a top or dress on
 export const BRA = drawn(`<path fill="none" d="M88 106 L90 89 M112 106 L110 89"/><path fill="url(#leopard)" d="M83 107 Q91 101 99.5 109 L99.5 121 Q91 125 83 121 Z M117 107 Q109 101 100.5 109 L100.5 121 Q109 125 117 121 Z"/><path fill="url(#leopard)" d="M83 120.5 Q100 127 117 120.5 L117 125 Q100 131 83 125 Z"/>`,"soft");
 /** Jess's features (brows, eyes, nose). Blush, lips and everything else come from the chosen MAKEUP look. */
@@ -219,7 +224,7 @@ const CAP = `<path fill="${HAIR}" d="M78 52 C76 30 88 22 100 22 C112 22 124 30 1
 /** Pulled-back hair (no part) for updos */
 const SLEEK = `<path fill="${HAIR}" d="M78.5 50 C77 30 88 22 100 22 C112 22 123 30 121.5 50 C120 40 112 33 100 33 C88 33 80 40 78.5 50 Z"/>
   <path fill="none" ${STRAND} d="M84 40 C88 32 94 28 99 26 M116 40 C112 32 106 28 101 26 M90 36 C94 30 98 28 100 27"/>`;
-const BACK_CAP = `<path fill="${HAIR}" d="M100 21 C80 21 74 36 76 54 C77 64 80 70 84 72 L116 72 C120 70 123 64 124 54 C126 36 120 21 100 21 Z"/>`;
+const BACK_CAP = `<path fill="${HAIR}" d="M100 21 C80 21 74 36 76 54 C77 60 79 63 82.5 63.5 L117.5 63.5 C121 63 123 60 124 54 C126 36 120 21 100 21 Z"/>`;
 const PART = `<path fill="none" ${STRAND} d="M96 33 C90 36 85 42 83 50 M104 33 C110 36 115 42 117 50"/>`;
 
 const STYLES: Record<HairStyle, { back: string; front: string }> = {
@@ -228,11 +233,8 @@ const STYLES: Record<HairStyle, { back: string; front: string }> = {
     back: `<path fill="${HAIR}" d="M100 20 C72 20 62 42 64 66 C56 84 61 104 57 124 C53 144 58 164 66 176 C72 184 82 184 88 178 L112 178 C118 184 128 184 134 176 C142 164 147 144 143 124 C139 104 144 84 136 66 C138 42 128 20 100 20 Z"/>
   <path fill="none" ${STRAND} d="M66 80 C62 98 66 118 62 138 C59 154 64 168 70 176 M134 80 C138 98 134 118 138 138 C141 154 136 168 130 176"/>
   <path fill="none" ${SHINE} d="M63 120 C61 130 63 140 62 148 M137 120 C139 130 137 140 138 148"/>`,
-    front: `${CAP}
-  <path fill="${HAIR}" d="M99 31 C86 33 78 44 77.5 57 C77.5 65 81 70 86 72 C83 65 83 57 87 50 C90 44 94 37 99 31 Z M101 31 C114 33 122 44 122.5 57 C122.5 65 119 70 114 72 C117 65 117 57 113 50 C110 44 106 37 101 31 Z"/>
-  <path fill="${HAIR}" d="M79 64 C73 80 76 96 72 112 C68 128 71 144 79 153 C85 158 93 154 91 147 C85 149 80 141 82 128 C84 113 85 97 87 80 Z M121 64 C127 80 124 96 128 112 C132 128 129 144 121 153 C115 158 107 154 109 147 C115 149 120 141 118 128 C116 113 115 97 113 80 Z"/>
-  ${PART}
-  <path fill="none" ${SHINE} d="M76 104 C74 114 76 124 75 132 M124 104 C126 114 124 124 125 132 M92 25 C96 23 104 23 108 25"/>
+    front: `<path fill="${HAIR}" d="M100 22 C88 22 76 30 78 52 C77.6 54 77.5 55.5 77.5 57 C77.5 65 81 70 86 72 C83 65 83 57 87 50 C90 44 94 37 99 31 L101 31 C106 37 110 44 113 50 C117 57 117 65 114 72 C119 70 122.5 65 122.5 57 C122.5 55.5 122.4 54 122 52 C124 30 112 22 100 22 Z"/>
+  <path fill="none" ${SHINE} d="M92 25 C96 23 104 23 108 25 M81 58 C80.5 62 81.5 66 83 68 M119 58 C119.5 62 118.5 66 117 68"/>
   ${HOOPS}`,
   },
   // Messy blonde updo with loose face-framing pieces
@@ -240,18 +242,16 @@ const STYLES: Record<HairStyle, { back: string; front: string }> = {
     back: `${BACK_CAP}
   <path fill="${HAIR}" d="M84 22 C77 14 83 4 93 6 C96 0 106 0 109 5 C118 3 124 12 117 19 C121 25 112 30 104 27 C99 31 90 30 87 26 C82 27 80 24 84 22 Z"/>
   <path fill="none" ${WISP} d="M86 9 C82 4 79 6 78 11 M114 6 C119 1 123 5 121 10 M100 2 C101 -2 105 -2 106 1 M90 6 C92 9 95 10 97 8 M104 7 C107 10 110 10 112 8 M88 18 C91 14 95 15 96 19 M106 19 C108 15 112 15 114 18"/>`,
-    front: `${SLEEK}
-  <path fill="${HAIR}" d="M80 44 C77 56 81 66 78 78 C76 88 80 96 77 104 C82 97 82 88 83.5 78 C85 66 81 56 83 46 Z M120 44 C123 56 119 66 122 78 C124 88 120 96 123 104 C118 97 118 88 116.5 78 C115 66 119 56 117 46 Z"/>
-  <path fill="none" ${WISP} d="M84 44 C82 52 84 58 82 64 M116 44 C118 52 116 58 118 64 M93 26 C92 21 95 20 96 24 M107 26 C108 21 105 20 104 24"/>
+    front: `<path fill="${HAIR}" d="M100 22 C88 22 77 30 78.5 50 C78 56 80 66 78 78 C76 88 80 96 77 104 C82 97 82 88 83.5 78 C85 66 81 56 83 46 C88 38 94 34 100 33 C106 34 112 38 117 46 C119 56 115 66 116.5 78 C118 88 118 97 123 104 C120 96 124 88 122 78 C120 66 122 56 121.5 50 C123 30 112 22 100 22 Z"/>
+  <path fill="none" ${STRAND} d="M86 38 C90 31 95 28 99 26 M114 38 C110 31 105 28 101 26 M80.5 56 C80 64 81.5 70 80.5 78 M119.5 56 C120 64 118.5 70 119.5 78"/>
+  <path fill="none" ${WISP} d="M93 26 C92 21 95 20 96 24 M107 26 C108 21 105 20 104 24"/>
   ${HOOPS}`,
   },
   // Voluminous layered blowout, shoulder length with flicked layers
   layers: {
     back: `<path fill="${HAIR}" d="M100 19 C70 19 60 40 63 62 C56 72 57 86 61 96 C55 103 54 113 58 121 C63 116 68 114 72 118 C75 112 79 108 85 108 L115 108 C121 108 125 112 128 118 C132 114 137 116 142 121 C146 113 145 103 139 96 C143 86 144 72 137 62 C140 40 130 19 100 19 Z"/>
   <path fill="none" ${STRAND} d="M64 70 C60 80 62 90 61 98 M136 70 C140 80 138 90 139 98 M68 100 C64 106 63 112 64 118 M132 100 C136 106 137 112 136 118"/>`,
-    front: `${CAP}
-  <path fill="${HAIR}" d="M99 31 C86 32 78 42 77 56 C75 68 79 78 76 88 C72 94 68 96 63 100 C72 103 80 98 84 90 C86 80 82 70 84 60 C85 48 92 36 99 31 Z M101 31 C114 32 122 42 123 56 C125 68 121 78 124 88 C128 94 132 96 137 100 C128 103 120 98 116 90 C114 80 118 70 116 60 C115 48 108 36 101 31 Z"/>
-  ${PART}
+    front: `<path fill="${HAIR}" d="M100 22 C88 22 76 30 78 52 L77 56 C75 68 79 78 76 88 C72 94 68 96 63 100 C72 103 80 98 84 90 C86 80 82 70 84 60 C85 48 92 36 99 31 L101 31 C108 36 115 48 116 60 C118 70 114 80 116 90 C120 98 128 103 137 100 C132 96 128 94 124 88 C121 78 125 68 123 56 L122 52 C124 30 112 22 100 22 Z"/>
   <path fill="none" ${STRAND} d="M80 62 C78 72 81 80 78 88 M120 62 C122 72 119 80 122 88"/>
   <path fill="none" ${SHINE} d="M79 76 C77 82 78 88 76 92 M121 76 C123 82 122 88 124 92 M92 25 C96 23 104 23 108 25"/>
   ${HOOPS}`,
@@ -261,10 +261,8 @@ const STYLES: Record<HairStyle, { back: string; front: string }> = {
     back: `${BACK_CAP}
   <path fill="${HAIR}" d="M85 21 C79 10 87 -2 100 0 C113 -2 121 10 115 21 C119 27 109 30 100 28 C91 30 81 27 85 21 Z"/>
   <path fill="none" ${WISP} d="M88 4 C84 -1 88 -3 91 0 M110 2 C114 -3 118 1 115 4 M96 6 C98 3 103 3 105 6 M90 14 C94 10 98 12 98 16 M102 16 C104 11 108 11 110 14 M117 20 C121 21 122 25 120 27"/>`,
-    front: `${SLEEK}
-  <path fill="${HAIR}" d="M112 30 C98 29 86 35 81.5 49 C80.5 55 81.5 60 84 63 C84.5 55 88 48 94 44 C100 40 108 38 117 38 Z"/>
-  <path fill="${HAIR}" d="M120 46 C123 58 120 68 122 78 C118 71 116.5 60 117 50 Z"/>
-  <path fill="none" ${STRAND} d="M108 33 C98 34 90 39 86 47 M112 36 C104 37 96 41 90 48"/>
+    front: `<path fill="${HAIR}" d="M100 22 C88 22 77 30 78.5 50 C79 55 80 60 84 63 C84.5 55 88 48 94 44 C100 40 108 38 117 38 C117.6 42 117.4 46 117 50 C116.5 60 118 71 122 78 C120 68 123 58 121.5 50 C123 30 112 22 100 22 Z"/>
+  <path fill="none" ${STRAND} d="M108 33 C98 34 90 39 86 47 M112 36 C104 37 96 41 90 48 M94 27 C98 25 104 25 110 28"/>
   <path fill="none" ${SHINE} d="M100 33 C95 35 91 38 89 41"/>
   ${HOOPS}`,
   },
@@ -275,10 +273,8 @@ const STYLES: Record<HairStyle, { back: string; front: string }> = {
   <path fill="${HAIR}" d="M82 9 C90 9 93.5 15 92.5 21.5 C91.5 27.5 85.5 30.5 80 30 C74 29 70.5 24 71.5 18 C72.5 12.5 76.5 9 82 9 Z M118 9 C110 9 106.5 15 107.5 21.5 C108.5 27.5 114.5 30.5 120 30 C126 29 129.5 24 128.5 18 C127.5 12.5 123.5 9 118 9 Z"/>
   <path fill="none" ${WISP} d="M76 16 Q82 9 88 16 Q86 24 79 22 M124 16 Q118 9 112 16 Q114 24 121 22 M78 10 C76 6 79 5 80 8 M122 10 C124 6 121 5 120 8"/>
   <path fill="none" ${STRAND} d="M72 90 C70 110 70 130 69 160 M128 90 C130 110 130 130 131 160"/>`,
-    front: `${CAP}
-  <path fill="${HAIR}" d="M84 40 C81 52 83 64 80 76 C78 86 80 98 79 110 C83 98 83 86 85.5 76 C88 64 86 52 87.5 42 Z M116 40 C119 52 117 64 120 76 C122 86 120 98 121 110 C117 98 117 86 114.5 76 C112 64 114 52 112.5 42 Z"/>
-  ${PART}
-  <path fill="none" ${SHINE} d="M82 84 C81 90 82 96 81 102 M118 84 C119 90 118 96 119 102"/>
+    front: `<path fill="${HAIR}" d="M100 22 C88 22 76 30 78 52 C77 64 80 76 78 88 C77 98 79 106 79 112 C82 104 82 94 83 84 C84 72 82 60 83 50 C86 41 92 34 99 31 L101 31 C108 34 114 41 117 50 C118 60 116 72 117 84 C118 94 118 104 121 112 C121 106 123 98 122 88 C120 76 123 64 122 52 C124 30 112 22 100 22 Z"/>
+  <path fill="none" ${SHINE} d="M80.5 84 C79.8 90 80.6 96 80 102 M119.5 84 C120.2 90 119.4 96 120 102 M92 25 C96 23 104 23 108 25"/>
   ${HOOPS}`,
   },
   // Sleek half-up ponytail with spiky ends
@@ -286,11 +282,10 @@ const STYLES: Record<HairStyle, { back: string; front: string }> = {
     back: `${BACK_CAP}
   <path fill="${HAIR}" d="M80 40 C72 60 72 100 70 150 C70 170 72 186 76 192 L124 192 C128 186 130 170 130 150 C128 100 128 60 120 40 Z"/>
   <path fill="none" ${STRAND} d="M76 80 C74 110 74 150 75 186 M124 80 C126 110 126 150 125 186 M100 74 L100 190"/>`,
-    front: `${CAP}
-  <path fill="${HAIR}" d="M93 23 L83 5 L94 15 L93 0 L99 13 L103 -1 L105 13 L113 1 L110 16 L119 9 L108 23 Z"/>
+    front: `<path fill="${HAIR}" d="M93 23 L83 5 L94 15 L93 0 L99 13 L103 -1 L105 13 L113 1 L110 16 L119 9 L108 23 Z"/>
+  <path fill="${HAIR}" d="M100 22 C88 22 76 30 78 52 C77.5 80 79 120 78 152 C81.5 114 82.5 80 83.5 52 C86 41 92 34 99 31 L101 31 C108 34 114 41 116.5 52 C117.5 80 118.5 114 122 152 C121 120 122.5 80 122 52 C124 30 112 22 100 22 Z"/>
   <path fill="none" ${WISP} d="M90 10 L86 4 M108 9 L111 4 M100 8 L101 2"/>
   <ellipse cx="100.5" cy="22" rx="5" ry="2.4" ${TIE}/>
-  <path fill="${HAIR}" d="M80 46 C77.5 72 79 112 78 152 C81.5 114 82.5 74 83.5 50 Z M120 46 C122.5 72 121 112 122 152 C118.5 114 117.5 74 116.5 50 Z"/>
   <path fill="none" ${SHINE} d="M88 28 C93 25 97 24 99 24 M101 24 C103 24 107 25 112 28"/>
   ${HOOPS}`,
   },

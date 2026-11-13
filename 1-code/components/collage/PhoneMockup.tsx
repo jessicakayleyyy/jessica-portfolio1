@@ -1,7 +1,7 @@
 import { Video } from "@/components/ui/Video";
 import type { Clip } from "@/content/site";
 
-export function PhoneMockup({ clip, width = 210, live = false }: { clip: Clip; width?: number; live?: boolean }) {
+export function PhoneMockup({ clip, width = 210, live = false, eager = false }: { clip: Clip; width?: number; live?: boolean; eager?: boolean }) {
   return (
     <div className="phone" style={{ width }}>
       {live && (
@@ -10,7 +10,7 @@ export function PhoneMockup({ clip, width = 210, live = false }: { clip: Clip; w
           PLAYING
         </span>
       )}
-      <Video clip={clip} />
+      <Video clip={clip} eager={eager} />
     </div>
   );
 }
