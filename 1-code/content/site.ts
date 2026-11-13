@@ -37,7 +37,10 @@ export type Brand = {
   /** Add a video + result to make the brand clickable */
   video?: Clip;
   result?: string;
+  /** The post URL (TikTok/Instagram). Shown as a button in the pop-up. */
   link?: string;
+  /** Brand logo in /public/assets/logos/, shown beside the video in the pop-up */
+  logo?: string;
 };
 
 export type BrandCategory = {
@@ -195,7 +198,7 @@ export const site = {
           { name: "TikTok Creator Camp", video: vid("tiktok-creator-camp", "TikTok Creator Camp 2024") },
           { name: "Zero Latency VR", video: vid("zero-latency", "Zero Latency VR") },
           { name: "Girlhood Ireland", video: vid("girlhood", "Girlhood") },
-          { name: "Holey Moley" },
+          { name: "Holey Moley", video: vid("fireball-funlab", "Holey Moley × Fireball × Funlab Halloween") },
           { name: "Funlab", video: vid("fireball-funlab", "Funlab × Fireball Halloween") },
           { name: "Luna Park", video: vid("luna-park", "Luna Park Sydney") },
           { name: "Stranger Things", result: "175.2K views", video: vid("stranger-things-luna-park", "Stranger Things: The Experience × Luna Park") },
@@ -291,9 +294,9 @@ export const site = {
       { title: "TikTok Awards 2024", platform: "TikTok", url: TIKTOK, video: vid("tiktok-awards", "TikTok Awards 2024") },
       { title: "Ireland Fashion Week", platform: "TikTok", url: TIKTOK, video: vid("ireland-fashion-week", "Ireland Fashion Week") },
       { title: "Casetify × Stranger Things", platform: "TikTok", url: TIKTOK, video: vid("casetify-stranger-things", "Casetify × Stranger Things") },
-      { title: "The Boathouse", views: "15.9K", platform: "TikTok", url: TIKTOK, video: vid("boathouse-yours-and-owls", "The Boathouse × Yours & Owls") },
+      { title: "The Boathouse × Yours & Owls", views: "15.9K", platform: "TikTok", url: TIKTOK, video: vid("boathouse-yours-and-owls", "The Boathouse × Yours & Owls") },
       { title: "Maxibon × Stranger Things", platform: "TikTok", url: TIKTOK, video: vid("maxibon-stranger-things", "Maxibon × Stranger Things") },
-      { title: "Rolling Sets", platform: "TikTok", url: TIKTOK, video: vid("rolling-sets", "Rolling Sets festival") },
+      { title: "Rolling Sets Festival", platform: "TikTok", url: TIKTOK, video: vid("rolling-sets", "Rolling Sets festival") },
     ] as { title: string; views?: string; platform: string; url: string; video: Clip }[],
   },
 
@@ -303,7 +306,7 @@ export const site = {
    * bralette, floral, tee, lowrise, dotmini, sweats, denim,
    * petticoat, tulle, poodle, ruffle, beaded, mintdot, corsetdress, gown, plaid, track, furcardi,
    * laceboots, creamboots, blueboots, uggs, cowboy, heels, flats, tights, belt, pinkshades,
-   * blackshades, cap, bangles, bow, sash, pearls, bag.
+   * blackshades, bakerboy, bangles, aquabangles, dotbangles, mixbangles, bow, sash, pearls, bag.
    */
   dressMe: {
     eyebrow: "GRWM",
@@ -312,7 +315,7 @@ export const site = {
     startWith: "golden",
     occasions: [
       { id: "golden", name: "Golden hour", look: ["floral", "petticoat", "sash", "cowboy"] },
-      { id: "offduty", name: "Model off-duty", look: ["tee", "sweats", "uggs", "cap", "blackshades"] },
+      { id: "offduty", name: "Model off-duty", look: ["tee", "sweats", "uggs", "bakerboy", "blackshades"] },
       { id: "y2k", name: "Y2K girly", look: ["halter", "lowrise", "belt", "blueboots", "pinkshades", "bangles"] },
       { id: "party", name: "Party night", look: ["corsetdress", "laceboots", "bangles", "bow"] },
       { id: "brunch", name: "Brunch", look: ["beaded", "tights", "heels", "pearls"] },

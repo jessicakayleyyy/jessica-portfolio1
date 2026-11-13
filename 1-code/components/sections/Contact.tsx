@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { DOLL_VIEWBOX } from "@/components/collage/wardrobe";
 import { sendMessage, type ContactState } from "@/app/actions";
 import { useReducedMotion } from "framer-motion";
 import { BounceWord, WaxSeal } from "@/components/collage/Objects";
@@ -89,7 +90,7 @@ export function Contact() {
               {showLook && look && (
                 <figure className="attach">
                   <div className="attach-img">
-                    <svg className="wl" viewBox="40 14 120 440" aria-hidden="true" dangerouslySetInnerHTML={{ __html: look.svg }} />
+                    <svg className="wl" viewBox={DOLL_VIEWBOX} aria-hidden="true" dangerouslySetInnerHTML={{ __html: look.svg }} />
                   </div>
                   <figcaption>
                     + the look you styled<span>{look.name}</span>

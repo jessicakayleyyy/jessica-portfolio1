@@ -83,15 +83,20 @@ export function MemoryBox() {
       </div>
 
       <Peek show={!!hover}>
-        {hover?.video && <PhoneMockup clip={hover.video} width={140} />}
+        {/* key: a fresh player for every brand, so the right video always loads and the last one stops */}
+        {hover?.video && <PhoneMockup key={hover.name} clip={hover.video} width={140} />}
         <span className="peek-res">{hover?.result && /views/.test(hover.result) ? hover.result : "watch the video"}</span>
       </Peek>
 
       <Modal open={!!open} onClose={() => setOpen(null)} label={open ? `${open.name} content` : "Brand content"}>
         {open && (
           <div className="grid items-center gap-6 text-left sm:grid-cols-[150px_1fr]">
-            <div className="justify-self-center">{open.video && <PhoneMockup clip={open.video} width={150} />}</div>
+            <div className="justify-self-center">{open.video && <PhoneMockup key={open.name} clip={open.video} width={150} />}</div>
             <div>
+              {open.logo && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="mb-logo" src={open.logo} alt={`${open.name} logo`} />
+              )}
               <p className="mono">{cat.label}</p>
               <h3 className="font-serif text-[2.2rem] leading-none">{open.name}</h3>
               {open.result && <p className="mt-3">{open.result}</p>}

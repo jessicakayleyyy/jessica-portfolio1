@@ -13,7 +13,9 @@ export type Garment = { cat: Category; name: string; svg: string };
 /** Draw order for clothes, back to front */
 export const LAYER_ORDER: Category[] = ["Shoes", "Bottoms", "Dresses", "Tops", "Layers"];
 /** Extras that sit on the head, drawn over the front hair */
-export const HEAD_EXTRAS = ["bow", "pinkshades", "blackshades", "cap"];
+export const HEAD_EXTRAS = ["bow", "pinkshades", "blackshades", "bakerboy"];
+/** The doll's drawing area (room above her head for buns and hats) */
+export const DOLL_VIEWBOX = "40 -4 120 458";
 /** Extras worn on the legs, drawn under everything else */
 export const LEGWEAR = ["tights"];
 
@@ -37,6 +39,7 @@ export const DEFS = `
     <pattern id="plaid" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#F3CAD5"/><rect y="4" width="10" height="1.4" fill="#8A5A50" fill-opacity=".45"/><rect x="4" width="1.4" height="10" fill="#8A5A50" fill-opacity=".45"/><rect y="8.3" width="10" height=".5" fill="#fff"/><rect x="8.3" width=".5" height="10" fill="#fff"/></pattern>
     <pattern id="cow" width="12" height="9" patternUnits="userSpaceOnUse"><rect width="12" height="9" fill="#FBF7EC"/><path d="M1 1 q2.5 -1 3.5 1.2 q-.5 2 -2.6 1.6 q-1.4 -.4 -.9 -2.8z M7.5 4.5 q2.4 -.6 3.2 1.4 q-.6 1.8 -2.6 1.4 q-1.4 -.8 -.6 -2.8z" fill="#2B2526"/></pattern>
     <pattern id="beads" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#F8EEDC"/><circle cx="1.5" cy="1.5" r="1" fill="#fff" stroke="#E2D3B8" stroke-width=".3"/><circle cx="4.5" cy="4.5" r="1" fill="#fff" stroke="#E2D3B8" stroke-width=".3"/><circle cx="4.5" cy="1.5" r=".5" fill="#F4C9D6"/></pattern>
+    <pattern id="aquadots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#7FD6D2"/><circle cx="3" cy="3" r="1.3" fill="#fff"/></pattern>
     <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#fff"/><circle cx="3.5" cy="3.5" r="1.5" fill="#2E2526"/></pattern>
     
     <filter id="sketch" x="-6%" y="-6%" width="112%" height="112%">
@@ -92,6 +95,7 @@ export const BODY = parts(`
   <path fill="${SKIN}" d="M80 47 C80 33 89 27 100 27 C111 27 120 33 120 47 C120 62 112 76 100 78 C88 76 80 62 80 47 Z"/>`);
 // Leopard-print bra: her base layer, hidden as soon as she has a top or dress on
 export const BRA = drawn(`<path fill="none" d="M88 106 L90 89 M112 106 L110 89"/><path fill="url(#leopard)" d="M83 107 Q91 101 99.5 109 L99.5 121 Q91 125 83 121 Z M117 107 Q109 101 100.5 109 L100.5 121 Q109 125 117 121 Z"/><path fill="url(#leopard)" d="M83 120.5 Q100 127 117 120.5 L117 125 Q100 131 83 125 Z"/>`,"soft");
+/** Jess's features (brows, eyes, nose). Blush, lips and everything else come from the chosen MAKEUP look. */
 export const FACE = `<g class="face">
   <path fill="none" style="stroke:#5A3A2C;stroke-width:1.2" d="M86.2 44.6 Q91 41.6 96.4 43.4 M103.6 43.4 Q109 41.6 113.8 44.6"/>
   <circle cx="91.9" cy="52.3" r="2.4" fill="#5C3A28"/><circle cx="109.3" cy="52.3" r="2.4" fill="#5C3A28"/>
@@ -99,11 +103,65 @@ export const FACE = `<g class="face">
   <path fill="none" style="stroke:#2E1C18;stroke-width:1.5" d="M86.3 51.8 Q91 47.6 96.2 50.8 M103.8 50.8 Q109 47.6 113.7 51.8"/>
   <path fill="none" style="stroke:#2E1C18;stroke-width:.8" d="M86.3 51.8 l-1.7 -1.3 M87.1 50.5 l-1.3 -1.8 M113.7 51.8 l1.7 -1.3 M112.9 50.5 l1.3 -1.8"/>
   <path fill="none" style="stroke:#3B2B2B;stroke-width:.45;stroke-opacity:.5" d="M87.5 54 Q91.5 55.8 95.3 54 M104.7 54 Q108.5 55.8 112.5 54"/>
-  <path fill="none" style="stroke:#3B2B2B;stroke-width:.7" d="M99.8 54.5 Q98.6 60 100.8 61.4"/>
-  <circle cx="87.4" cy="61.6" r="4.8" fill="#F29AB0" fill-opacity=".42"/><circle cx="112.6" cy="61.6" r="4.8" fill="#F29AB0" fill-opacity=".42"/>
-  <path fill="#E07A92" style="stroke:#A2505F;stroke-width:.5" d="M94 66 Q97 63.6 100 65 Q103 63.6 106 66 Q100 67.6 94 66 Z"/>
-  <path fill="#E7889E" style="stroke:#A2505F;stroke-width:.5" d="M94.3 66.1 Q100 72.6 105.7 66.1 Q100 68 94.3 66.1 Z"/>
-  <ellipse cx="101.6" cy="69" rx="1.5" ry=".6" fill="#fff" fill-opacity=".85"/></g>`;
+  <path fill="none" style="stroke:#3B2B2B;stroke-width:.7" d="M99.8 54.5 Q98.6 60 100.8 61.4"/></g>`;
+
+/* ── Makeup looks (from Jess's makeup mood board) ─────────────────
+ * under: drawn on the skin, beneath the eyes (shadow, blush, freckles, bronzer)
+ * over:  drawn on top of the eyes (liner, lashes, lips, gloss, gems)
+ * top:   drawn over the hair (e.g. the 2000s headband)
+ */
+const lips = (fill: string, line: string, gloss = ".85") =>
+  `<path fill="${fill}" style="stroke:${line};stroke-width:.5" d="M94 66 Q97 63.6 100 65 Q103 63.6 106 66 Q100 67.6 94 66 Z"/>` +
+  `<path fill="${fill}" style="stroke:${line};stroke-width:.5" d="M94.3 66.1 Q100 72.6 105.7 66.1 Q100 68 94.3 66.1 Z"/>` +
+  `<ellipse cx="101.6" cy="69" rx="1.6" ry=".65" fill="#fff" fill-opacity="${gloss}"/>`;
+const glossy = (fill: string, line: string) => lips(fill, line, "1") + `<ellipse cx="97.6" cy="65.4" rx="1.1" ry=".4" fill="#fff" fill-opacity=".8"/>`;
+const blush = (fill: string, op: string, r = 4.8, cy = 61.6) =>
+  `<circle cx="87.4" cy="${cy}" r="${r}" fill="${fill}" fill-opacity="${op}"/><circle cx="112.6" cy="${cy}" r="${r}" fill="${fill}" fill-opacity="${op}"/>`;
+const FRECKLE_PTS = [[85, 58.5], [87.5, 57.6], [89.6, 59.2], [86.4, 60.6], [96.6, 57.4], [98.4, 56.6], [101.8, 56.6], [103.6, 57.4], [100.1, 58.2], [110.4, 59.2], [112.5, 57.6], [115, 58.5], [113.6, 60.6], [91.2, 58.1], [108.8, 58.1]];
+const freckles = (op = ".75", r = ".42") => FRECKLE_PTS.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#9A5F45" fill-opacity="${op}"/>`).join("");
+const lids = (fill: string, op: string, rx = 6, ry = 3.6, cy = 49.4) =>
+  `<ellipse cx="91.4" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" fill-opacity="${op}"/><ellipse cx="109.8" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" fill-opacity="${op}"/>`;
+const sparkles = (pts: number[][], fill = "#fff") => pts.map(([x, y, r = .5]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`).join("");
+const lashes = (w = ".7", long = 1) => {
+  const L = (x: number, y: number, dx: number, dy: number) => `M${x} ${y} l${(dx * long).toFixed(2)} ${(dy * long).toFixed(2)}`;
+  return `<path fill="none" style="stroke:#1E1414;stroke-width:${w};stroke-linecap:round" d="${[
+    L(88, 50.2, -.8, -2.4), L(89.6, 49.1, -.4, -2.6), L(91.3, 48.6, 0, -2.7), L(93, 48.8, .4, -2.6), L(94.7, 49.6, .8, -2.4),
+    L(105.3, 49.6, -.8, -2.4), L(107, 48.8, -.4, -2.6), L(108.7, 48.6, 0, -2.7), L(110.4, 49.1, .4, -2.6), L(112, 50.2, .8, -2.4),
+  ].join(" ")}"/>`;
+};
+const lowerLashes = `<path fill="none" style="stroke:#1E1414;stroke-width:.45;stroke-linecap:round" d="M88.6 54.4 l-.5 1.3 M90.6 55.1 l-.2 1.4 M92.7 55.1 l.2 1.4 M94.6 54.5 l.5 1.3 M105.4 54.5 l-.5 1.3 M107.3 55.1 l-.2 1.4 M109.4 55.1 l.2 1.4 M111.4 54.4 l.5 1.3"/>`;
+const wings = (w = "1.6") => `<path fill="none" style="stroke:#140D0D;stroke-width:${w};stroke-linecap:round;stroke-linejoin:round" d="M87 51.6 Q91 47.9 96 50.6 L97.6 48.6 M113 51.6 Q109 47.9 104 50.6 L102.4 48.6"/><path fill="#140D0D" d="M85.6 52 L82.4 48.6 L87.4 50.6 Z M114.4 52 L117.6 48.6 L112.6 50.6 Z"/>`;
+
+export const MAKEUP = [
+  { id: "natural", name: "Everyday Jess", swatch: "#F29AB0",
+    under: blush("#F29AB0", ".42"), over: lips("#E07A92", "#A2505F") },
+  { id: "rosy", name: "Rosy freckles", swatch: "#E77D92",
+    under: blush("#E9788F", ".5", 6.2, 60.5) + `<ellipse cx="100" cy="58" rx="3.4" ry="1.6" fill="#E9788F" fill-opacity=".35"/>` + freckles(),
+    over: lips("#C97683", "#9E5560", ".5") },
+  { id: "bronzed", name: "Bronzed lashes", swatch: "#C98B62",
+    under: blush("#C98B62", ".38", 5.6, 63) + `<path fill="#C98B62" fill-opacity=".3" d="M81 58 Q84 66 90 70 Q85 64 84 57 Z M119 58 Q116 66 110 70 Q115 64 116 57 Z"/>` + freckles(".5", ".38") + lids("#B0785A", ".35", 5.4, 3),
+    over: lashes(".6", 1) + lowerLashes + glossy("#D9A08E", "#A8705E") },
+  { id: "icy", name: "Icy silver", swatch: "#D7E2EC",
+    under: lids("#E6EEF6", ".8", 6.6, 4.4, 47.8) + lids("#B9C8D8", ".45", 5, 2.6, 49.6) + freckles(".45", ".36") + blush("#F2A9B0", ".22"),
+    over: sparkles([[87, 46, .45], [91, 44.6, .55], [95.6, 46.2, .4], [105, 46.2, .4], [109.6, 44.6, .55], [113.6, 46, .45], [93, 47.2, .35], [107.6, 47.2, .35]]) + lashes(".45", .8) + glossy("#D9A592", "#A8705E") },
+  { id: "y2k", name: "2000s glam", swatch: "#2B2526",
+    under: blush("#D8907C", ".3", 5, 62.5) + lids("#C9A08A", ".3", 5.4, 2.8),
+    over: wings() + `<path fill="none" style="stroke:#fff;stroke-width:.6;stroke-opacity:.9" d="M88.4 54.2 Q91.6 55.6 94.8 54.2 M105.2 54.2 Q108.4 55.6 111.6 54.2"/>` + lashes(".5", .8) + glossy("#D49A8A", "#A06A5C"),
+    top: `<path fill="none" style="stroke:#1C1718;stroke-width:4.2;stroke-linecap:round" d="M78.6 44 C78 28 88 21.6 100 21.6 C112 21.6 122 28 121.4 44"/>` },
+  { id: "smoky", name: "Smoky silver", swatch: "#77737C",
+    under: lids("#4D4852", ".55", 6.8, 4.2, 49.8) + `<ellipse cx="91.6" cy="54.8" rx="4.6" ry="1.4" fill="#4D4852" fill-opacity=".45"/><ellipse cx="109.6" cy="54.8" rx="4.6" ry="1.4" fill="#4D4852" fill-opacity=".45"/>` + lids("#D8DDE4", ".75", 3.2, 2, 48.8) + freckles(".6", ".4") + blush("#D9907E", ".25"),
+    over: sparkles([[90, 47.4, .45], [92.6, 46.8, .4], [108.4, 46.8, .4], [111, 47.4, .45]]) + lashes(".55", .9) + lowerLashes + glossy("#D6A090", "#A06A5C") + `<circle cx="97.6" cy="42.6" r=".9" fill="#fff" style="stroke:#C9D2DC;stroke-width:.3"/>` },
+  { id: "fairy", name: "Pink fairy", swatch: "#F29AC0",
+    under: lids("#F4A6C8", ".6", 6.4, 4, 48.8) + lids("#FBD3E4", ".6", 3.4, 2, 48.4) + blush("#F29AB0", ".35"),
+    over: sparkles([[88.6, 45.6], [92, 45, .4], [95, 46, .45], [106, 46, .45], [109, 45, .4], [112.4, 45.6], [84, 56, .4], [116, 56, .4]], "#FFF4FA") +
+      `<path fill="none" style="stroke:#1E1414;stroke-width:.55;stroke-linecap:round" d="M86.2 51.6 C83.6 50.4 82.4 47.6 84.2 46.4 C85.6 45.6 86.8 47.2 85.6 48 M86.6 53.2 C84.2 55 84.6 58 86.6 58.2 C88 58.2 88 56.6 86.8 56.6 M113.8 51.6 C116.4 50.4 117.6 47.6 115.8 46.4 C114.4 45.6 113.2 47.2 114.4 48 M113.4 53.2 C115.8 55 115.4 58 113.4 58.2 C112 58.2 112 56.6 113.2 56.6"/>` +
+      sparkles([[83.2, 50.2, .45], [83.6, 54.4, .4], [116.8, 50.2, .45], [116.4, 54.4, .4]], "#1E1414") + lashes(".45", .75) + lips("#EC8FAE", "#B95A7C") },
+] as const;
+export type MakeupId = (typeof MAKEUP)[number]["id"];
+export const makeupFor = (id: MakeupId) => {
+  const m: { under: string; over: string; top?: string } = MAKEUP.find((x) => x.id === id) ?? MAKEUP[0];
+  return { under: `<g class="mu">${m.under}</g>`, over: `<g class="mu">${m.over}</g>`, top: m.top ? `<g class="mu">${m.top}</g>` : "" };
+};
 const WAVES_FRONT = `
   <path fill="${HAIR}" d="M78 52 C76 30 88 22 100 22 C112 22 124 30 122 52 C120 40 112 32 101 31 L99 31 C88 32 80 40 77 52 Z"/>
   <path fill="${HAIR}" d="M99 31 C88 32 79 40 77 54 C74 66 80 74 76 86 C72 98 80 108 76 120 C72 132 81 142 77 154 C74 164 79 174 84 178 C86 170 83 162 87 152 C91 140 84 130 88 118 C92 106 85 96 88 84 C89 76 82 66 82 56 C83 44 92 35 99 31 Z"/>
@@ -127,16 +185,18 @@ export const UNDIES = drawn(`<path fill="url(#blacklace)" d="M76.5 186 Q100 191 
 
 /**
  * Jess's tattoos, drawn on the skin (clothes cover them naturally).
- * Add small line-art shapes here in the doll's coordinates (viewBox "40 14 120 440").
+ * Add small line-art shapes here in the doll's coordinates (see DOLL_VIEWBOX).
  */
 export const TATTOOS = "";
 
-/* ── Hair: style + colour pickers ─────────────────────────────── */
+/* ── Hair: style + colour pickers (styles from Jess's hairstyle mood board) ── */
 export const HAIR_STYLES = [
-  { id: "waves", name: "Long waves" },
-  { id: "pony", name: "High pony" },
-  { id: "buns", name: "Space buns" },
-  { id: "pigtails", name: "Pigtails" },
+  { id: "blowout", name: "90s blowout" },
+  { id: "updo", name: "Messy updo" },
+  { id: "layers", name: "Layered blowout" },
+  { id: "highbun", name: "High bun + fringe" },
+  { id: "halfbuns", name: "Half-up buns" },
+  { id: "spiky", name: "Spiky half-up" },
 ] as const;
 export const HAIR_COLOURS = [
   { id: "chestnut", name: "Chestnut", swatch: "#6B4029", grad: "hairGrad", dark: "#3E241B", light: "#E2BC92" },
@@ -150,41 +210,88 @@ export type HairColour = (typeof HAIR_COLOURS)[number]["id"];
 
 const STRAND = 'style="stroke:#3E241B;stroke-opacity:.45;stroke-width:.55"';
 const SHINE = 'style="stroke:#E2BC92;stroke-opacity:.8;stroke-width:1.1"';
+const WISP = 'style="stroke:#3E241B;stroke-opacity:.7;stroke-width:.6"';
 const TIE = 'fill="#F4A9C3" style="stroke:#C9577F;stroke-width:.45"';
 const HOOPS = `  <circle cx="80.5" cy="69" r="3.6" fill="none" style="stroke:#AEB5BF;stroke-width:1.3"/><circle cx="119.5" cy="69" r="3.6" fill="none" style="stroke:#AEB5BF;stroke-width:1.3"/>
   <path fill="none" style="stroke:#fff;stroke-width:.6" d="M78 67.4 Q79.4 65.6 81.4 65.6 M117 67.4 Q118.4 65.6 120.4 65.6"/>`;
+/** Hair over the top of the head with a middle part */
 const CAP = `<path fill="${HAIR}" d="M78 52 C76 30 88 22 100 22 C112 22 124 30 122 52 C120 40 112 32 101 31 L99 31 C88 32 80 40 77 52 Z"/>`;
+/** Pulled-back hair (no part) for updos */
+const SLEEK = `<path fill="${HAIR}" d="M78.5 50 C77 30 88 22 100 22 C112 22 123 30 121.5 50 C120 40 112 33 100 33 C88 33 80 40 78.5 50 Z"/>
+  <path fill="none" ${STRAND} d="M84 40 C88 32 94 28 99 26 M116 40 C112 32 106 28 101 26 M90 36 C94 30 98 28 100 27"/>`;
 const BACK_CAP = `<path fill="${HAIR}" d="M100 21 C80 21 74 36 76 54 C77 64 80 70 84 72 L116 72 C120 70 123 64 124 54 C126 36 120 21 100 21 Z"/>`;
+const PART = `<path fill="none" ${STRAND} d="M96 33 C90 36 85 42 83 50 M104 33 C110 36 115 42 117 50"/>`;
+
 const STYLES: Record<HairStyle, { back: string; front: string }> = {
-  waves: { back: WAVES_BACK, front: WAVES_FRONT },
-  pony: {
-    back: `${BACK_CAP}
-  <path fill="${HAIR}" d="M96 22 C100 12 116 8 124 16 C132 26 130 44 136 62 C142 82 134 100 140 120 C143 132 138 142 132 146 C133 132 128 120 130 104 C132 86 124 72 126 56 C127 42 120 30 108 26 Z"/>
-  <path fill="none" ${STRAND} d="M122 22 C128 34 126 50 131 64 C136 80 129 96 134 114"/>
-  <path fill="none" ${SHINE} d="M133 90 C136 100 133 110 136 120"/>`,
+  // Long, bouncy, layered 90s blowout with curtain flicks (Jess's everyday hair)
+  blowout: {
+    back: `<path fill="${HAIR}" d="M100 20 C72 20 62 42 64 66 C56 84 61 104 57 124 C53 144 58 164 66 176 C72 184 82 184 88 178 L112 178 C118 184 128 184 134 176 C142 164 147 144 143 124 C139 104 144 84 136 66 C138 42 128 20 100 20 Z"/>
+  <path fill="none" ${STRAND} d="M66 80 C62 98 66 118 62 138 C59 154 64 168 70 176 M134 80 C138 98 134 118 138 138 C141 154 136 168 130 176"/>
+  <path fill="none" ${SHINE} d="M63 120 C61 130 63 140 62 148 M137 120 C139 130 137 140 138 148"/>`,
     front: `${CAP}
-  <path fill="none" ${STRAND} d="M96 33 C90 36 85 42 83 50 M104 33 C110 36 115 42 117 50"/>
-  <ellipse cx="111" cy="19.5" rx="5.6" ry="3.4" ${TIE} transform="rotate(-28 111 19.5)"/>
+  <path fill="${HAIR}" d="M99 31 C86 33 78 44 77.5 57 C77.5 65 81 70 86 72 C83 65 83 57 87 50 C90 44 94 37 99 31 Z M101 31 C114 33 122 44 122.5 57 C122.5 65 119 70 114 72 C117 65 117 57 113 50 C110 44 106 37 101 31 Z"/>
+  <path fill="${HAIR}" d="M79 64 C73 80 76 96 72 112 C68 128 71 144 79 153 C85 158 93 154 91 147 C85 149 80 141 82 128 C84 113 85 97 87 80 Z M121 64 C127 80 124 96 128 112 C132 128 129 144 121 153 C115 158 107 154 109 147 C115 149 120 141 118 128 C116 113 115 97 113 80 Z"/>
+  ${PART}
+  <path fill="none" ${SHINE} d="M76 104 C74 114 76 124 75 132 M124 104 C126 114 124 124 125 132 M92 25 C96 23 104 23 108 25"/>
   ${HOOPS}`,
   },
-  buns: {
+  // Messy blonde updo with loose face-framing pieces
+  updo: {
     back: `${BACK_CAP}
-  <path fill="${HAIR}" d="M84 9.5 C93 9.5 95 17 94 22 C93 28 88 31 83 30.5 C76 30 73 24 74 18 C75 13 79 9.5 84 9.5 Z M116 9.5 C107 9.5 105 17 106 22 C107 28 112 31 117 30.5 C124 30 127 24 126 18 C125 13 121 9.5 116 9.5 Z"/>
-  <path fill="none" ${STRAND} d="M79 18 Q84 12 89 18 Q87 25 81 23 M121 18 Q116 12 111 18 Q113 25 119 23"/>`,
-    front: `${CAP}
-  <path fill="${HAIR}" d="M79 50 C77 58 79 66 77 75 C81 68 82 60 81.5 52 Z M121 50 C123 58 121 66 123 75 C119 68 118 60 118.5 52 Z"/>
-  <path fill="none" ${STRAND} d="M96 33 C90 36 85 42 83 50 M104 33 C110 36 115 42 117 50"/>
+  <path fill="${HAIR}" d="M84 22 C77 14 83 4 93 6 C96 0 106 0 109 5 C118 3 124 12 117 19 C121 25 112 30 104 27 C99 31 90 30 87 26 C82 27 80 24 84 22 Z"/>
+  <path fill="none" ${WISP} d="M86 9 C82 4 79 6 78 11 M114 6 C119 1 123 5 121 10 M100 2 C101 -2 105 -2 106 1 M90 6 C92 9 95 10 97 8 M104 7 C107 10 110 10 112 8 M88 18 C91 14 95 15 96 19 M106 19 C108 15 112 15 114 18"/>`,
+    front: `${SLEEK}
+  <path fill="${HAIR}" d="M80 44 C77 56 81 66 78 78 C76 88 80 96 77 104 C82 97 82 88 83.5 78 C85 66 81 56 83 46 Z M120 44 C123 56 119 66 122 78 C124 88 120 96 123 104 C118 97 118 88 116.5 78 C115 66 119 56 117 46 Z"/>
+  <path fill="none" ${WISP} d="M84 44 C82 52 84 58 82 64 M116 44 C118 52 116 58 118 64 M93 26 C92 21 95 20 96 24 M107 26 C108 21 105 20 104 24"/>
   ${HOOPS}`,
   },
-  pigtails: {
-    back: `${BACK_CAP}
-  <path fill="${HAIR}" d="M80 64 C70 70 64 84 66 100 C67 114 62 126 64 140 C65 148 70 152 74 150 C72 140 76 128 74 116 C72 100 76 86 84 76 Z M120 64 C130 70 136 84 134 100 C133 114 138 126 136 140 C135 148 130 152 126 150 C128 140 124 128 126 116 C128 100 124 86 116 76 Z"/>
-  <path fill="none" ${STRAND} d="M72 88 C68 100 71 112 68 126 M128 88 C132 100 129 112 132 126"/>
-  <path fill="none" ${SHINE} d="M70 104 C68 112 70 120 68 128 M130 104 C132 112 130 120 132 128"/>`,
+  // Voluminous layered blowout, shoulder length with flicked layers
+  layers: {
+    back: `<path fill="${HAIR}" d="M100 19 C70 19 60 40 63 62 C56 72 57 86 61 96 C55 103 54 113 58 121 C63 116 68 114 72 118 C75 112 79 108 85 108 L115 108 C121 108 125 112 128 118 C132 114 137 116 142 121 C146 113 145 103 139 96 C143 86 144 72 137 62 C140 40 130 19 100 19 Z"/>
+  <path fill="none" ${STRAND} d="M64 70 C60 80 62 90 61 98 M136 70 C140 80 138 90 139 98 M68 100 C64 106 63 112 64 118 M132 100 C136 106 137 112 136 118"/>`,
     front: `${CAP}
-  <path fill="none" ${STRAND} d="M96 33 C90 36 85 42 83 50 M104 33 C110 36 115 42 117 50"/>
-  <ellipse cx="73" cy="82" rx="4.4" ry="2.6" ${TIE} transform="rotate(-20 73 82)"/>
-  <ellipse cx="127" cy="82" rx="4.4" ry="2.6" ${TIE} transform="rotate(20 127 82)"/>
+  <path fill="${HAIR}" d="M99 31 C86 32 78 42 77 56 C75 68 79 78 76 88 C72 94 68 96 63 100 C72 103 80 98 84 90 C86 80 82 70 84 60 C85 48 92 36 99 31 Z M101 31 C114 32 122 42 123 56 C125 68 121 78 124 88 C128 94 132 96 137 100 C128 103 120 98 116 90 C114 80 118 70 116 60 C115 48 108 36 101 31 Z"/>
+  ${PART}
+  <path fill="none" ${STRAND} d="M80 62 C78 72 81 80 78 88 M120 62 C122 72 119 80 122 88"/>
+  <path fill="none" ${SHINE} d="M79 76 C77 82 78 88 76 92 M121 76 C123 82 122 88 124 92 M92 25 C96 23 104 23 108 25"/>
+  ${HOOPS}`,
+  },
+  // Messy high bun with a side-swept fringe
+  highbun: {
+    back: `${BACK_CAP}
+  <path fill="${HAIR}" d="M85 21 C79 10 87 -2 100 0 C113 -2 121 10 115 21 C119 27 109 30 100 28 C91 30 81 27 85 21 Z"/>
+  <path fill="none" ${WISP} d="M88 4 C84 -1 88 -3 91 0 M110 2 C114 -3 118 1 115 4 M96 6 C98 3 103 3 105 6 M90 14 C94 10 98 12 98 16 M102 16 C104 11 108 11 110 14 M117 20 C121 21 122 25 120 27"/>`,
+    front: `${SLEEK}
+  <path fill="${HAIR}" d="M112 30 C98 29 86 35 81.5 49 C80.5 55 81.5 60 84 63 C84.5 55 88 48 94 44 C100 40 108 38 117 38 Z"/>
+  <path fill="${HAIR}" d="M120 46 C123 58 120 68 122 78 C118 71 116.5 60 117 50 Z"/>
+  <path fill="none" ${STRAND} d="M108 33 C98 34 90 39 86 47 M112 36 C104 37 96 41 90 48"/>
+  <path fill="none" ${SHINE} d="M100 33 C95 35 91 38 89 41"/>
+  ${HOOPS}`,
+  },
+  // Brunette half-up double buns with face-framing strands
+  halfbuns: {
+    back: `${BACK_CAP}
+  <path fill="${HAIR}" d="M80 40 C70 60 68 92 66 130 C65 150 66 164 70 172 L130 172 C134 164 135 150 134 130 C132 92 130 60 120 40 Z"/>
+  <path fill="${HAIR}" d="M82 9 C90 9 93.5 15 92.5 21.5 C91.5 27.5 85.5 30.5 80 30 C74 29 70.5 24 71.5 18 C72.5 12.5 76.5 9 82 9 Z M118 9 C110 9 106.5 15 107.5 21.5 C108.5 27.5 114.5 30.5 120 30 C126 29 129.5 24 128.5 18 C127.5 12.5 123.5 9 118 9 Z"/>
+  <path fill="none" ${WISP} d="M76 16 Q82 9 88 16 Q86 24 79 22 M124 16 Q118 9 112 16 Q114 24 121 22 M78 10 C76 6 79 5 80 8 M122 10 C124 6 121 5 120 8"/>
+  <path fill="none" ${STRAND} d="M72 90 C70 110 70 130 69 160 M128 90 C130 110 130 130 131 160"/>`,
+    front: `${CAP}
+  <path fill="${HAIR}" d="M84 40 C81 52 83 64 80 76 C78 86 80 98 79 110 C83 98 83 86 85.5 76 C88 64 86 52 87.5 42 Z M116 40 C119 52 117 64 120 76 C122 86 120 98 121 110 C117 98 117 86 114.5 76 C112 64 114 52 112.5 42 Z"/>
+  ${PART}
+  <path fill="none" ${SHINE} d="M82 84 C81 90 82 96 81 102 M118 84 C119 90 118 96 119 102"/>
+  ${HOOPS}`,
+  },
+  // Sleek half-up ponytail with spiky ends
+  spiky: {
+    back: `${BACK_CAP}
+  <path fill="${HAIR}" d="M80 40 C72 60 72 100 70 150 C70 170 72 186 76 192 L124 192 C128 186 130 170 130 150 C128 100 128 60 120 40 Z"/>
+  <path fill="none" ${STRAND} d="M76 80 C74 110 74 150 75 186 M124 80 C126 110 126 150 125 186 M100 74 L100 190"/>`,
+    front: `${CAP}
+  <path fill="${HAIR}" d="M93 23 L83 5 L94 15 L93 0 L99 13 L103 -1 L105 13 L113 1 L110 16 L119 9 L108 23 Z"/>
+  <path fill="none" ${WISP} d="M90 10 L86 4 M108 9 L111 4 M100 8 L101 2"/>
+  <ellipse cx="100.5" cy="22" rx="5" ry="2.4" ${TIE}/>
+  <path fill="${HAIR}" d="M80 46 C77.5 72 79 112 78 152 C81.5 114 82.5 74 83.5 50 Z M120 46 C122.5 72 121 112 122 152 C118.5 114 117.5 74 116.5 50 Z"/>
+  <path fill="none" ${SHINE} d="M88 28 C93 25 97 24 99 24 M101 24 C103 24 107 25 112 28"/>
   ${HOOPS}`,
   },
 };
@@ -194,7 +301,7 @@ const tint = (s: string, c: HairColour) => {
 };
 /** The back and front hair layers for a given style and colour */
 export function hairFor(style: HairStyle, colour: HairColour) {
-  const h = STYLES[style] ?? STYLES.waves;
+  const h = STYLES[style] ?? STYLES.blowout;
   return { back: tint(hairLayer(h.back), colour), front: tint(hairLayer(h.front), colour) };
 }
 
@@ -237,7 +344,10 @@ export const WARDROBE: Record<string, Garment> = {
   belt:{cat:'Extras',name:'Statement belt',svg:`<path fill="url(#cow)" d="M78 185 Q100 191 122 185 L122.5 193 Q100 199 77.5 193 Z"/><rect x="93" y="184" width="14" height="13" rx="3" fill="#D9DDE2"/><rect x="96" y="187" width="8" height="7" rx="1.5" fill="#F4A9C3"/>`},
   pinkshades:{cat:'Extras',name:'Pink sunnies',svg:`<ellipse cx="91.5" cy="51.5" rx="7.5" ry="5.4" fill="#F4A9C3" fill-opacity=".8"/><ellipse cx="108.5" cy="51.5" rx="7.5" ry="5.4" fill="#F4A9C3" fill-opacity=".8"/><path fill="none" style="stroke:#E8508F;stroke-width:1.5" d="M84 51.5 Q84 46 91.5 46 Q99 46 99 51.5 Q99 57 91.5 57 Q84 57 84 51.5 Z M101 51.5 Q101 46 108.5 46 Q116 46 116 51.5 Q116 57 108.5 57 Q101 57 101 51.5 Z M99 50.5 L101 50.5 M84 50 L79 49 M116 50 L121 49"/>`},
   blackshades:{cat:'Extras',name:'Wrap sunnies',svg:`<path fill="#2B2526" d="M82 48 Q100 44 118 48 L117 54 Q110 58 102 54 L100 52 L98 54 Q90 58 83 54 Z"/><path fill="none" style="stroke:#6E6668;stroke-width:.8" d="M86 50 L92 49"/>`},
-  cap:{cat:'Extras',name:'Pink cap',svg:`<path fill="#F4A9C3" d="M78 42 Q77 19 100 18 Q123 19 122 42 Z"/><path fill="#fff" d="M88 40 Q88 24 100 23 Q112 24 112 40 Z"/><path fill="#F4A9C3" d="M76 41 Q100 35 124 41 Q118 47 100 45 Q82 47 76 41 Z"/>`},
+  bakerboy:{cat:'Extras',name:'Pink baker boy hat',svg:`<path fill="#F4A9C3" d="M72.5 33 C68 18 82 7 101 7.5 C121 8 134 18 128 31.5 C118 35.5 84 36 72.5 33 Z"/><path fill="#EC8FB0" d="M76 31 Q100 35.5 124.5 30.5 Q123 38.5 101 40 Q79 39 76 31 Z"/><path fill="none" style="stroke:#C9577F;stroke-width:.55;stroke-opacity:.8" d="M101 8 L100.5 33.5 M88 10.5 C84 17 83.5 25 85.5 33 M114 10.5 C118.5 17 119.5 24 117.5 32.5 M79 16 C76 21 75 27 76.5 32 M123 15.5 C126 20 127 26 125.5 31"/><circle cx="101" cy="8.4" r="2.3" fill="#EC8FB0" style="stroke:#C9577F;stroke-width:.5"/>`},
+  aquabangles:{cat:'Extras',name:'Aqua bangles',svg:`<ellipse cx="63" cy="221" rx="6.6" ry="2.6" fill="#7FD6D2"/><ellipse cx="63" cy="226" rx="6.6" ry="2.6" fill="#3FB8B8"/><ellipse cx="63" cy="231" rx="6.6" ry="2.6" fill="#B5ECE7"/><ellipse cx="137" cy="226" rx="6.6" ry="2.6" fill="#3FB8B8"/><ellipse cx="137" cy="231" rx="6.6" ry="2.6" fill="#7FD6D2"/>`},
+  dotbangles:{cat:'Extras',name:'Polka dot bangles',svg:`<ellipse cx="63" cy="222" rx="6.8" ry="3.1" fill="url(#dots)"/><ellipse cx="63" cy="229" rx="6.8" ry="3.1" fill="url(#hotdots)"/><ellipse cx="137" cy="225" rx="6.8" ry="3.1" fill="url(#dots)"/><ellipse cx="137" cy="232" rx="6.8" ry="3.1" fill="url(#aquadots)"/>`},
+  mixbangles:{cat:'Extras',name:'Aqua + polka stack',svg:`<ellipse cx="63" cy="220" rx="6.6" ry="2.6" fill="#3FB8B8"/><ellipse cx="63" cy="225.5" rx="6.8" ry="3" fill="url(#dots)"/><ellipse cx="63" cy="231" rx="6.6" ry="2.6" fill="#7FD6D2"/><ellipse cx="137" cy="222" rx="6.8" ry="3" fill="url(#aquadots)"/><ellipse cx="137" cy="227.5" rx="6.6" ry="2.6" fill="#B5ECE7"/><ellipse cx="137" cy="233" rx="6.8" ry="3" fill="url(#dots)"/>`},
   bangles:{cat:'Extras',name:'Pink bangles',svg:`<ellipse cx="63" cy="222" rx="6.5" ry="2.6" fill="#F4A9C3"/><ellipse cx="63" cy="227" rx="6.5" ry="2.6" fill="#E8508F"/><ellipse cx="63" cy="232" rx="6.5" ry="2.6" fill="#D9B36A"/><ellipse cx="137" cy="227" rx="6.5" ry="2.6" fill="#F4A9C3"/><ellipse cx="137" cy="232" rx="6.5" ry="2.6" fill="#F7C9D8"/>`},
   bow:{cat:'Extras',name:'Hair bow',svg:`<path fill="#F3B6C9" d="M112 29 Q103 17 102 30 Q103 41 112 33 Z M116 29 Q125 17 126 30 Q125 41 116 33 Z"/><path fill="none" style="stroke:#E9649E;stroke-width:1.6" d="M112 33 L107 48 M116 33 L121 48"/><circle cx="114" cy="31" r="3.2" fill="#E9649E"/>`},
   sash:{cat:'Extras',name:'Fringe sash',svg:`<path fill="#E2448A" d="M82 181 Q100 187 118 181 L118 189 Q100 195 82 189 Z"/><path fill="#E2448A" d="M105 189 L111 181 L118 190 L112 197 Z"/><path fill="#E2448A" d="M108 194 L103 250 L109 251 L113 196 Z M113 195 L119 247 L124 245 L116 193 Z"/><path fill="none" style="stroke:#E2448A;stroke-width:.8" d="M103.5 251 L103 258 M105.5 251 L105.5 259 M108 251 L108.5 258 M119.5 247 L120 255 M122 246 L123 253"/>`},

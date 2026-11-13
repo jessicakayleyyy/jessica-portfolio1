@@ -2,7 +2,7 @@
 
 import { useReducedMotion } from "framer-motion";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { BODY, BRA, CATEGORIES, DEFS, FACE, HAIR_COLOURS, HAIR_STYLES, HEAD_EXTRAS, LAYER_ORDER, LEGWEAR, TATTOOS, UNDIES, WARDROBE, drawn, hairFor, type Category, type HairColour, type HairStyle } from "@/components/collage/wardrobe";
+import { BODY, BRA, CATEGORIES, DEFS, DOLL_VIEWBOX, FACE, HAIR_COLOURS, HAIR_STYLES, HEAD_EXTRAS, LAYER_ORDER, LEGWEAR, MAKEUP, TATTOOS, UNDIES, WARDROBE, drawn, hairFor, makeupFor, type Category, type HairColour, type HairStyle, type MakeupId } from "@/components/collage/wardrobe";
 import { lookStore } from "@/lib/look";
 import { site } from "@/content/site";
 
@@ -10,6 +10,15 @@ type Outfit = { Tops: string | null; Bottoms: string | null; Dresses: string | n
 const EMPTY: Outfit = { Tops: null, Bottoms: null, Dresses: null, Layers: null, Shoes: null, Extras: [] };
 type Snap = { id: number; svg: string; caption: string; rotate: number };
 const PICKS = ["Tops", "Bottoms", "Dresses", "Shoes", "Layers"] as const;
+/** Closet tabs: the clothing categories, plus hair and makeup */
+const TABS = [...CATEGORIES, "Hair", "Makeup"] as const;
+type Tab = (typeof TABS)[number];
+/** A head-and-shoulders portrait for the hair and makeup cards */
+const portrait = (hairStyle: HairStyle, colour: HairColour, mk: MakeupId) => {
+  const h = hairFor(hairStyle, colour);
+  const m = makeupFor(mk);
+  return h.back + BODY + m.under + FACE + m.over + h.front + m.top;
+};
 
 const wornIds = (o: Outfit) => [o.Tops, o.Bottoms, o.Dresses, o.Layers, o.Shoes, ...o.Extras].filter(Boolean) as string[];
 const idsIn = (cat: Category) => Object.keys(WARDROBE).filter((id) => WARDROBE[id].cat === cat);
@@ -61,12 +70,13 @@ export function DressMe() {
   const start = d.occasions.find((o) => o.id === d.startWith) ?? d.occasions[0];
   const [outfit, setOutfit] = useState<Outfit>(() => outfitFor(start.look));
   const [occ, setOcc] = useState<string | null>(start.id);
-  const [cat, setCat] = useState<Category>("Tops");
+  const [cat, setCat] = useState<Tab>("Tops");
   const [snaps, setSnaps] = useState<Snap[]>([]);
   const [hop, setHop] = useState(0);
   const [flash, setFlash] = useState(0);
-  const [hairStyle, setHairStyle] = useState<HairStyle>("waves");
+  const [hairStyle, setHairStyle] = useState<HairStyle>("blowout");
   const [hairColour, setHairColour] = useState<HairColour>("chestnut");
+  const [makeup, setMakeup] = useState<MakeupId>("natural");
   const [lifted, setLifted] = useState<string | null>(null);
   const prevWorn = useRef<Set<string>>(new Set(wornIds(outfit)));
   const dollRef = useRef<SVGSVGElement>(null);
@@ -78,6 +88,9 @@ export function DressMe() {
   const worn = wornIds(outfit);
   const hair = hairFor(hairStyle, hairColour);
   const styleIdx = HAIR_STYLES.findIndex((h) => h.id === hairStyle);
+  const mk = makeupFor(makeup);
+  const mkIdx = MAKEUP.findIndex((m) => m.id === makeup);
+  const stepMakeup = (d: number) => { touched.current = true; setMakeup(MAKEUP[(mkIdx + d + MAKEUP.length) % MAKEUP.length].id); };
   const occasion = d.occasions.find((o) => o.id === occ);
 
   // Pieces that were just put on get a little "drop on" animation
@@ -97,7 +110,7 @@ export function DressMe() {
       items: worn.map((id) => WARDROBE[id].name),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [outfit, occ, hairStyle, hairColour]);
+  }, [outfit, occ, hairStyle, hairColour, makeup]);
 
   const put = (id: string, force = false) => { touched.current = true; setOutfit((o) => withPiece(o, id, force)); setOcc(null); };
 
@@ -211,12 +224,12 @@ export function DressMe() {
                 key={hop}
                 ref={dollRef}
                 className={`doll wl ${hop && !reduce ? "hop" : ""}`}
-                viewBox="40 14 120 440"
+                viewBox={DOLL_VIEWBOX}
                 role="img"
                 aria-label={`Illustrated Jess wearing: ${worn.map((id) => WARDROBE[id].name).join(", ") || "her basics"}`}
                 data-cursor="twirl"
                 onClick={() => setHop((h) => h + 1)}
-                dangerouslySetInnerHTML={{ __html: hair.back + BODY + TATTOOS + (outfit.Tops || outfit.Dresses ? "" : BRA) + (outfit.Bottoms || outfit.Dresses ? "" : UNDIES) + FACE + clothes + bodyExtras + hair.front + headExtras }}
+                dangerouslySetInnerHTML={{ __html: hair.back + BODY + TATTOOS + (outfit.Tops || outfit.Dresses ? "" : BRA) + (outfit.Bottoms || outfit.Dresses ? "" : UNDIES) + mk.under + FACE + mk.over + clothes + bodyExtras + hair.front + mk.top + headExtras }}
               />
               <span className="sig">Jess</span>
               {flash > 0 && <div key={flash} className="flash go" />}
@@ -224,7 +237,7 @@ export function DressMe() {
                 {snaps.map((s) => (
                   <figure key={s.id} className="snap" style={{ rotate: `${s.rotate}deg` }}>
                     <div className="img">
-                      <svg className="wl" viewBox="40 14 120 440" aria-hidden="true" dangerouslySetInnerHTML={{ __html: s.svg }} />
+                      <svg className="wl" viewBox={DOLL_VIEWBOX} aria-hidden="true" dangerouslySetInnerHTML={{ __html: s.svg }} />
                     </div>
                     <figcaption>{s.caption}</figcaption>
                   </figure>
@@ -247,6 +260,11 @@ export function DressMe() {
                 <button type="button" className="arr" aria-label="Previous hairstyle" onClick={() => { touched.current = true; setHairStyle(HAIR_STYLES[(styleIdx + HAIR_STYLES.length - 1) % HAIR_STYLES.length].id); }}>◀</button>
                 <span className="pick-name"><small>hair</small><b>{HAIR_STYLES[styleIdx].name}</b></span>
                 <button type="button" className="arr" aria-label="Next hairstyle" onClick={() => { touched.current = true; setHairStyle(HAIR_STYLES[(styleIdx + 1) % HAIR_STYLES.length].id); }}>▶</button>
+              </div>
+              <div className="pick">
+                <button type="button" className="arr" aria-label="Previous makeup look" onClick={() => stepMakeup(-1)}>◀</button>
+                <span className="pick-name"><small>makeup</small><b>{MAKEUP[mkIdx].name}</b></span>
+                <button type="button" className="arr" aria-label="Next makeup look" onClick={() => stepMakeup(1)}>▶</button>
               </div>
               <div className="hair-colours" role="radiogroup" aria-label="Hair colour">
                 {HAIR_COLOURS.map((h) => (
@@ -272,11 +290,37 @@ export function DressMe() {
             </div>
 
             <div className="cats" role="tablist" aria-label="Wardrobe">
-              {CATEGORIES.map((c) => (
+              {TABS.map((c) => (
                 <button key={c} type="button" role="tab" aria-selected={cat === c} onClick={() => setCat(c)}>{c}</button>
               ))}
             </div>
-            <p className="drag-hint">Drag a piece onto me, or tap to try it on.</p>
+            <p className="drag-hint">{cat === "Hair" ? "Tap a hairstyle to try it, then pick a colour." : cat === "Makeup" ? "Tap a look to do my makeup." : "Drag a piece onto me, or tap to try it on."}</p>
+            {cat === "Hair" && (
+              <div className="items looks" role="tabpanel" key="hair">
+                <div className="hair-colours wide" role="radiogroup" aria-label="Hair colour">
+                  {HAIR_COLOURS.map((h) => (
+                    <button key={h.id} type="button" role="radio" aria-checked={hairColour === h.id} aria-label={h.name} title={h.name} style={{ background: h.swatch }} onClick={() => { touched.current = true; setHairColour(h.id); }} />
+                  ))}
+                </div>
+                {HAIR_STYLES.map((h, i) => (
+                  <button key={h.id} type="button" className="item look" aria-pressed={hairStyle === h.id} style={{ animationDelay: `${i * 60}ms` }} onClick={() => { touched.current = true; setHairStyle(h.id); }}>
+                    <svg className="thumb face-thumb wl" viewBox="50 -4 100 100" aria-hidden="true" dangerouslySetInnerHTML={{ __html: portrait(h.id, hairColour, makeup) }} />
+                    <span className="nm">{h.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {cat === "Makeup" && (
+              <div className="items looks" role="tabpanel" key="makeup">
+                {MAKEUP.map((m, i) => (
+                  <button key={m.id} type="button" className="item look" aria-pressed={makeup === m.id} style={{ animationDelay: `${i * 60}ms` }} onClick={() => { touched.current = true; setMakeup(m.id); }}>
+                    <svg className="thumb face-thumb wl" viewBox="77 31 46 46" aria-hidden="true" dangerouslySetInnerHTML={{ __html: portrait(hairStyle, hairColour, m.id) }} />
+                    <span className="nm"><i className="sw" style={{ background: m.swatch }} />{m.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {cat !== "Hair" && cat !== "Makeup" && (
             <div className="items" role="tabpanel" key={cat}>
               {idsIn(cat).map((id, i) => (
                 <button
@@ -300,6 +344,7 @@ export function DressMe() {
                 </button>
               ))}
             </div>
+            )}
           </div>
         </div>
       </div>

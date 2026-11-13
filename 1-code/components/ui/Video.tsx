@@ -6,7 +6,8 @@ import type { Clip } from "@/content/site";
 
 /**
  * Muted, looping, inline video that only plays while it's on screen.
- * Falls back to a labelled placeholder until the file is added.
+ * If a browser can't play it, the poster picture shows instead (never a blank box).
+ * With no file set at all, a labelled placeholder shows.
  */
 export function Video({ clip, className = "" }: { clip: Clip; className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -18,30 +19,45 @@ export function Video({ clip, className = "" }: { clip: Clip; className?: string
     if (!v) return;
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !reduce) v.play().catch(() => {});
-        else v.pause();
+        if (entry.isIntersecting && !reduce) {
+          if (v.readyState === 0) v.load();
+          v.play().catch(() => {});
+        } else v.pause();
       },
-      { threshold: 0.4 },
+      { threshold: 0.25 },
     );
     io.observe(v);
     return () => io.disconnect();
   }, [reduce, failed]);
 
-  if (!clip.src || failed) return <div className={`photo ${className}`} data-label={clip.label} role="presentation" />;
+  if (!clip.src) return <div className={`photo ${className}`} data-label={clip.label} role="presentation" />;
+
+  if (failed) {
+    return clip.poster ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img className={`photo ${className}`} src={clip.poster} alt={clip.label} style={{ objectFit: "cover" }} />
+    ) : (
+      <div className={`photo ${className}`} data-label={clip.label} role="presentation" />
+    );
+  }
 
   return (
     <video
       ref={ref}
       className={`photo ${className}`}
+      src={clip.src}
       muted
       loop
       playsInline
-      preload="none"
+      autoPlay={!reduce}
+      preload="metadata"
       poster={clip.poster}
       aria-label={clip.label}
-    >
-      {clip.webm && <source src={clip.webm} type="video/webm" />}
-      <source src={clip.src} type="video/mp4" onError={() => setFailed(true)} />
-    </video>
+      onError={() => {
+        // Only give up when the browser really can't use the file
+        const err = ref.current?.error;
+        if (err && (err.code === 3 || err.code === 4)) setFailed(true);
+      }}
+    />
   );
 }
