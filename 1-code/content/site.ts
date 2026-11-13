@@ -92,12 +92,17 @@ export const site = {
       "Food spots, premieres, launches and the small everyday parts of building a life abroad, made for brands that want content that feels like a friend's recommendation.",
     /** Photos on the digicam screen. Visitors tap the camera to flick through them. */
     cameraPhotos: [
-      { src: "/assets/photos/hero-camera-1.jpg", alt: "Jessica at a film premiere", label: "photo · jess at a premiere" },
-      { src: "/assets/photos/hero-camera-2.jpg", alt: "Jessica at brunch in Dublin", label: "photo · brunch in dublin" },
-      { src: "/assets/photos/hero-camera-3.jpg", alt: "Jessica at a festival", label: "photo · festival day" },
+      { src: "/assets/photos/hero-camera-fw1.jpg", alt: "Jessica dancing in a lace top and tulle skirt at fashion week", label: "photo · fashion week" },
+      { src: "/assets/photos/hero-camera-1.jpg", alt: "Jessica in big sunglasses on a night out", label: "photo · night out" },
+      { src: "/assets/photos/hero-camera-2.jpg", alt: "Jessica jumping off a boat into the sea", label: "photo · boat day" },
+      { src: "/assets/photos/hero-camera-3.jpg", alt: "Jessica dancing in angel wings at a party", label: "photo · party night" },
+      { src: "/assets/photos/hero-camera-fw2.jpg", alt: "Jessica dancing with her phone at fashion week", label: "photo · fashion week" },
     ] as Media[],
-    printPhoto: { src: "/assets/photos/hero-polaroid.jpg", alt: "Jessica smiling", label: "photo · jess" } as Media,
-    printCaption: "sydney → dublin",
+    printPhoto: { src: "/assets/photos/hero-polaroid.jpg", alt: "Jessica laughing at a stadium concert in Sydney", label: "photo · jess" } as Media,
+    printCaption: "Sydney → Dublin",
+    /** The back of the polaroid (tap it to flip) */
+    printBack: { src: "/assets/photos/hero-polaroid-dublin.jpg", alt: "Jessica with a pint of Guinness overlooking Dublin", label: "photo · dublin" } as Media,
+    printBackCaption: "Sydney → Dublin",
     ticket: { top: "Admit one · Row A", title: "TikTok Awards", bottom: "3rd year running", stub: "No. 003" },
     bottleCap: "content, curated",
   },
@@ -120,10 +125,10 @@ export const site = {
     step: "step 1",
     title: "What are you looking for?",
     personas: [
-      { label: "PR", say: "Unboxings, first impressions & GRWMs", target: "#service-pr", cutout: { src: "/assets/cutouts/pr.png", alt: "Jessica in her unboxing look", label: "cut-out · unboxing look" } as Media },
-      { label: "Events", say: "Premieres, launches & festivals", target: "#service-events", cutout: { src: "/assets/cutouts/events.png", alt: "Jessica in a premiere outfit", label: "cut-out · premiere outfit" } as Media },
-      { label: "Trips & Experiences", say: "Restaurants, hotels & brand trips", target: "#service-trips", cutout: { src: "/assets/cutouts/trips.png", alt: "Jessica in a travel outfit", label: "cut-out · travel fit" } as Media },
-      { label: "UGC", say: "Videos for your own channels", target: "#service-ugc", cutout: { src: "/assets/cutouts/ugc.png", alt: "Jessica filming on her phone", label: "cut-out · phone + ring light" } as Media },
+      { label: "PR", say: "Unboxings, first impressions & GRWMs", target: "#service-pr", cutout: { src: "/assets/photos/persona-pr.jpg", alt: "Jessica in a pink tulle skirt and track jacket in Dublin", label: "photo · street style" } as Media },
+      { label: "Events", say: "Premieres, launches & festivals", target: "#service-events", cutout: { src: "/assets/photos/persona-events.jpg", alt: "Jessica at the Zootopia 2 premiere", label: "photo · premiere outfit" } as Media },
+      { label: "Trips & Experiences", say: "Restaurants, hotels & brand trips", target: "#service-trips", cutout: { src: "/assets/photos/persona-trips.jpg", alt: "Jessica in a red dress by the sea at sunset", label: "photo · travel fit" } as Media },
+      { label: "UGC", say: "Videos for your own channels", target: "#service-ugc", cutout: { src: "/assets/photos/persona-ugc.jpg", alt: "Jessica in a blue track jacket holding a drink", label: "photo · product shot" } as Media },
     ],
   },
 
@@ -265,12 +270,12 @@ export const site = {
   services: {
     eyebrow: "Content services",
     title: "(Work with me.)",
-    /** `photo` floats beside the cursor when someone hovers that service (desktop) */
+    /** `video` plays in a little phone beside the cursor when someone hovers that service (desktop) */
     items: [
-      { id: "service-pr", title: "PR", points: ["Unboxings & first impressions", "GRWMs", "“What I'm using lately”"], body: "Only things I'd genuinely use.", photo: { src: "/assets/photos/service-pr.jpg", alt: "", label: "photo · unboxing" } as Media },
-      { id: "service-events", title: "Event coverage", points: ["Premieres & launches", "Festivals", "Openings"], body: "Taking my audience along with me, from the red carpet to the afterparty.", photo: { src: "/assets/photos/service-events.jpg", alt: "", label: "photo · premiere night" } as Media },
-      { id: "service-trips", title: "Trips & Experiences", points: ["Restaurants & bars", "Hotels & travel", "Brand trips"], body: "Filmed the way I'd show a friend.", photo: { src: "/assets/photos/service-trips.jpg", alt: "", label: "photo · hotel stay" } as Media },
-      { id: "service-ugc", title: "UGC content", points: ["Product demos", "Talking-to-camera", "Lifestyle b-roll"], body: "Natural-looking videos your brand can run on its own channels.", photo: { src: "/assets/photos/service-ugc.jpg", alt: "", label: "photo · filming setup" } as Media },
+      { id: "service-pr", title: "PR", points: ["Unboxings & first impressions", "GRWMs", "“What I'm using lately”"], body: "Only things I'd genuinely use.", video: vid("mermade-hair", "Mermade Hair") },
+      { id: "service-events", title: "Event coverage", points: ["Premieres & launches", "Festivals", "Openings"], body: "Taking my audience along with me, from the red carpet to the afterparty.", video: vid("tiktok-awards", "TikTok Awards 2024") },
+      { id: "service-trips", title: "Trips & Experiences", points: ["Restaurants & bars", "Hotels & travel", "Brand trips"], body: "Filmed the way I'd show a friend.", video: vid("lyf-hotel", "Lyf Hotel") },
+      { id: "service-ugc", title: "UGC content", points: ["Product demos", "Talking-to-camera", "Lifestyle b-roll"], body: "Natural-looking videos your brand can run on its own channels.", video: vid("casetify-stranger-things", "Casetify × Stranger Things") },
     ],
     approach: {
       lines: ["Less perfect.", "More personality."],
