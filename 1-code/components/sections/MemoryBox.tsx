@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PhoneMockup } from "@/components/collage/PhoneMockup";
 import { Modal } from "@/components/ui/Modal";
 import { Peek } from "@/components/ui/Peek";
@@ -22,8 +22,33 @@ export function MemoryBox() {
   const [open, setOpen] = useState<Brand | null>(null);
   const cat = m.categories.find((c) => c.id === catId)!;
 
+  // As the section comes into view, fetch every cover picture and the start of each video,
+  // so hover previews show and play straight away
+  const box = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      const seen = new Set<string>();
+      for (const c of m.categories) for (const b of c.brands) {
+        const v = b.video;
+        if (!v?.src || seen.has(v.src)) continue;
+        seen.add(v.src);
+        if (v.poster) new Image().src = v.poster;
+        const pre = document.createElement("video");
+        pre.preload = "metadata";
+        pre.muted = true;
+        pre.src = v.src;
+      }
+    }, { rootMargin: "600px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [m.categories]);
+
   return (
-    <section id="brands" className="section overflow-hidden" data-tone="light" aria-labelledby="brands-title">
+    <section ref={box} id="brands" className="section overflow-hidden" data-tone="light" aria-labelledby="brands-title">
       <div className="wrap">
         <div className="mb-head text-center">
           <p className="mono">{`{  ${m.eyebrow}  }`}</p>
@@ -84,14 +109,14 @@ export function MemoryBox() {
 
       <Peek show={!!hover}>
         {/* key: a fresh player for every brand, so the right video always loads and the last one stops */}
-        {hover?.video && <PhoneMockup key={hover.name} clip={hover.video} width={140} />}
+        {hover?.video && <PhoneMockup key={hover.name} clip={hover.video} width={140} eager />}
         <span className="peek-res">{hover?.result && /views/.test(hover.result) ? hover.result : "watch the video"}</span>
       </Peek>
 
       <Modal open={!!open} onClose={() => setOpen(null)} label={open ? `${open.name} content` : "Brand content"}>
         {open && (
           <div className="grid items-center gap-6 text-left sm:grid-cols-[150px_1fr]">
-            <div className="justify-self-center">{open.video && <PhoneMockup key={open.name} clip={open.video} width={150} />}</div>
+            <div className="justify-self-center">{open.video && <PhoneMockup key={open.name} clip={open.video} width={150} eager />}</div>
             <div>
               {open.logo && (
                 // eslint-disable-next-line @next/next/no-img-element

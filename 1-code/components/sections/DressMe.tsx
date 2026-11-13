@@ -4,6 +4,8 @@ import { useReducedMotion } from "framer-motion";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BODY, BRA, CATEGORIES, DEFS, DOLL_VIEWBOX, FACE, HAIR_COLOURS, HAIR_STYLES, HEAD_EXTRAS, LAYER_ORDER, LEGWEAR, MAKEUP, TATTOOS, UNDIES, WARDROBE, drawn, hairFor, makeupFor, type Category, type HairColour, type HairStyle, type MakeupId } from "@/components/collage/wardrobe";
 import { lookStore } from "@/lib/look";
+/** Trousers that reach the ankle */
+const LONG_BOTTOMS = ["lowrise", "sweats"];
 import { site } from "@/content/site";
 
 type Outfit = { Tops: string | null; Bottoms: string | null; Dresses: string | null; Layers: string | null; Shoes: string | null; Extras: string[] };
@@ -96,7 +98,11 @@ export function DressMe() {
 
   // Pieces that were just put on get a little "drop on" animation
   const layer = (id: string) => `<g class="${prevWorn.current.has(id) || reduce ? "" : "new"}">${drawn(WARDROBE[id].svg)}</g>`;
-  const clothes = [...LEGWEAR.filter((id) => worn.includes(id)), ...LAYER_ORDER.flatMap((c) => idsIn(c).filter((id) => worn.includes(id)))].map(layer).join("");
+  // Under full-length trousers only the feet of the shoes show (no boot shafts peeking through)
+  const longPants = !!outfit.Bottoms && LONG_BOTTOMS.includes(outfit.Bottoms);
+  const clothes = [...LEGWEAR.filter((id) => worn.includes(id)), ...LAYER_ORDER.flatMap((c) => idsIn(c).filter((id) => worn.includes(id)))]
+    .map((id) => (longPants && WARDROBE[id].cat === "Shoes" ? `<g clip-path="url(#feetOnly)">${layer(id)}</g>` : layer(id)))
+    .join("");
   const bodyExtras = idsIn("Extras").filter((id) => worn.includes(id) && !HEAD_EXTRAS.includes(id) && !LEGWEAR.includes(id)).map(layer).join("");
   const headExtras = HEAD_EXTRAS.filter((id) => worn.includes(id)).map(layer).join("");
   useLayoutEffect(() => { prevWorn.current = new Set(worn); });
@@ -132,6 +138,8 @@ export function DressMe() {
     if (!dr.moved && Math.hypot(e.clientX - dr.x, e.clientY - dr.y) > 6) {
       dr.moved = true;
       const g = e.currentTarget.querySelector("svg")?.cloneNode(true) as SVGSVGElement | undefined;
+      // The floating copy skips the sketchy filters so it glides smoothly
+      g?.querySelectorAll("[filter]").forEach((n) => n.removeAttribute("filter"));
       if (g) {
         g.setAttribute("class", "ghost wl");
         g.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%) rotate(-6deg)`;
