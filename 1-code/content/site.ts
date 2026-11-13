@@ -39,6 +39,8 @@ export type Brand = {
   result?: string;
   /** The post URL (TikTok/Instagram). Shown as a button in the pop-up. */
   link?: string;
+  /** Extra posts for the same brand, shown as extra buttons in the pop-up */
+  more?: { label: string; url: string }[];
   /** Brand logo in /public/assets/logos/, shown beside the video in the pop-up */
   logo?: string;
 };
@@ -55,9 +57,6 @@ const vid = (slug: string, label: string): Clip => ({
   poster: `/assets/videos/${slug}.jpg`,
   label: `video · ${label}`,
 });
-
-/** Your TikTok profile. Used for any video whose exact post link has not been added yet. */
-const TIKTOK = "https://www.tiktok.com/@jessicakayleyyy";
 
 export const site = {
   name: "Jessica Latimer",
@@ -172,65 +171,65 @@ export const site = {
         id: "fb",
         label: "Food & Beverage",
         brands: [
-          { name: "His Boy Elroy", video: vid("his-boy-elroy", "His Boy Elroy") },
-          { name: "Fireball", video: vid("fireball-funlab", "Fireball × Funlab Halloween") },
-          { name: "Belvedere", video: vid("gitano-belvedere", "Gitano × Belvedere") },
-          { name: "Six by Nico", video: vid("six-by-nico", "Six by Nico") },
-          { name: "Maxibon", video: vid("maxibon-stranger-things", "Maxibon × Stranger Things") },
-          { name: "818 Tequila", video: vid("boveda-818-tequila", "Bóveda × 818 Tequila") },
+          { name: "His Boy Elroy", link: "https://www.instagram.com/reel/DTNUAi0j04z/", video: vid("his-boy-elroy", "His Boy Elroy") },
+          { name: "Fireball", link: "https://www.instagram.com/reel/DAs-iBoiYv4/", video: vid("fireball-funlab", "Fireball × Funlab Halloween") },
+          { name: "Belvedere", link: "https://www.instagram.com/reel/C776aXnSRt8/", video: vid("gitano-belvedere", "Gitano × Belvedere") },
+          { name: "Six by Nico", link: "https://www.instagram.com/reel/DcJXVsZMSRp/", video: vid("six-by-nico", "Six by Nico") },
+          { name: "Maxibon", link: "https://www.instagram.com/reel/DQv2iEGj4Tf/", video: vid("maxibon-stranger-things", "Maxibon × Stranger Things") },
+          { name: "818 Tequila", link: "https://www.instagram.com/reel/C-AHgsGyYe2/", video: vid("boveda-818-tequila", "Bóveda × 818 Tequila") },
           { name: "Cinnamood" },
-          { name: "Seoul Tonic", video: vid("giveaway-clutch-flashback-seoul-tonic-mermade", "Seoul Tonic giveaway") },
-          { name: "Bóveda", video: vid("boveda-818-tequila", "Bóveda × 818 Tequila") },
+          { name: "Seoul Tonic", link: "https://www.instagram.com/reel/DQBga5djh2k/", video: vid("giveaway-clutch-flashback-seoul-tonic-mermade", "Seoul Tonic giveaway") },
+          { name: "Bóveda", link: "https://www.instagram.com/reel/C-AHgsGyYe2/", video: vid("boveda-818-tequila", "Bóveda × 818 Tequila") },
           { name: "La Strada" },
-          { name: "Gitano", video: vid("gitano-belvedere", "Gitano × Belvedere") },
-          { name: "The Boathouse", result: "15.9K views", video: vid("boathouse-yours-and-owls", "The Boathouse × Yours & Owls") },
-          { name: "Zingi Beer", video: vid("zingi-beer", "Zingi Beer") },
+          { name: "Gitano", link: "https://www.instagram.com/reel/C776aXnSRt8/", video: vid("gitano-belvedere", "Gitano × Belvedere") },
+          { name: "The Boathouse", link: "https://www.instagram.com/reel/DSiuyank59u/", result: "15.9K views", video: vid("boathouse-yours-and-owls", "The Boathouse × Yours & Owls") },
+          { name: "Zingi Beer", link: "https://www.instagram.com/reel/DaIclf3N_9D/", video: vid("zingi-beer", "Zingi Beer") },
         ],
       },
       {
         id: "ev",
         label: "Events & Experiences",
         brands: [
-          { name: "Zootopia 2", video: vid("zootopia-2", "Disney+ Zootopia 2 premiere, Sydney") },
-          { name: "Kilo Sale", video: vid("kilo-sale", "Kilo Sale Sydney") },
-          { name: "Chasing Millions", video: vid("chasing-millions", "Chasing Millions premiere") },
-          { name: "TikTok Awards", video: vid("tiktok-awards", "TikTok Awards 2024") },
-          { name: "TikTok Creator Camp", video: vid("tiktok-creator-camp", "TikTok Creator Camp 2024") },
-          { name: "Zero Latency VR", video: vid("zero-latency", "Zero Latency VR") },
-          { name: "Girlhood Ireland", video: vid("girlhood", "Girlhood") },
-          { name: "Holey Moley", video: vid("fireball-funlab", "Holey Moley × Fireball × Funlab Halloween") },
-          { name: "Funlab", video: vid("fireball-funlab", "Funlab × Fireball Halloween") },
-          { name: "Luna Park", video: vid("luna-park", "Luna Park Sydney") },
-          { name: "Stranger Things", result: "175.2K views", video: vid("stranger-things-luna-park", "Stranger Things: The Experience × Luna Park") },
-          { name: "Scream VI" },
-          { name: "Red Bull Dance Your Style" },
-          { name: "Ireland Fashion Week", video: vid("ireland-fashion-week", "Ireland Fashion Week") },
-          { name: "Lyf Hotel", video: vid("lyf-hotel", "Lyf Hotel") },
+          { name: "Zootopia 2", link: "https://www.instagram.com/reel/DSXLYlVD0Vg/", video: vid("zootopia-2", "Disney+ Zootopia 2 premiere, Sydney") },
+          { name: "Kilo Sale", link: "https://www.instagram.com/reel/C5nFqQAPfL4/", video: vid("kilo-sale", "Kilo Sale Sydney") },
+          { name: "Chasing Millions", link: "https://www.instagram.com/reel/Dd_bJkPOKZO/", video: vid("chasing-millions", "Chasing Millions premiere") },
+          { name: "TikTok Awards", link: "https://www.instagram.com/reel/DDEFjyYz8IJ/", more: [{ label: "TikTok Awards 2023", url: "https://www.instagram.com/reel/C0ltxprvUbJ/" }], video: vid("tiktok-awards", "TikTok Awards 2024") },
+          { name: "TikTok Creator Camp", link: "https://www.instagram.com/reel/DC2yb-5zRq-/", video: vid("tiktok-creator-camp", "TikTok Creator Camp 2024") },
+          { name: "Zero Latency VR", link: "https://www.instagram.com/reel/C_2E_UOCJ6s/", video: vid("zero-latency", "Zero Latency VR") },
+          { name: "Girlhood Ireland", link: "https://www.instagram.com/reel/DcHZ7qkOrCw/", video: vid("girlhood", "Girlhood") },
+          { name: "Holey Moley", link: "https://www.instagram.com/reel/DAs-iBoiYv4/", video: vid("fireball-funlab", "Holey Moley × Fireball × Funlab Halloween") },
+          { name: "Funlab", link: "https://www.instagram.com/reel/DAs-iBoiYv4/", video: vid("fireball-funlab", "Funlab × Fireball Halloween") },
+          { name: "Luna Park", link: "https://www.instagram.com/reel/DKYKTFxTOER/", more: [{ label: "Stranger Things: The Experience", url: "https://vt.tiktok.com/ZSpCTeRFG/" }], video: vid("luna-park", "Luna Park Sydney") },
+          { name: "Stranger Things", link: "https://vt.tiktok.com/ZSpCTeRFG/", result: "175.2K views", video: vid("stranger-things-luna-park", "Stranger Things: The Experience × Luna Park") },
+          { name: "Scream VI", link: "https://www.instagram.com/reel/Cpw5VZNgHDJ/" },
+          { name: "Red Bull Dance Your Style", link: "https://www.instagram.com/reel/Da-pHxFNr9F/" },
+          { name: "Ireland Fashion Week", link: "https://www.instagram.com/reel/DeW3E6WO-F1/", video: vid("ireland-fashion-week", "Ireland Fashion Week") },
+          { name: "Lyf Hotel", link: "https://www.instagram.com/reel/DM7EJjHTAKc/", video: vid("lyf-hotel", "Lyf Hotel") },
         ],
       },
       {
         id: "bp",
         label: "Beauty & Products",
         brands: [
-          { name: "Wonderskin", video: vid("wonderskin-supergirl", "Wonderskin × Supergirl") },
-          { name: "Pierced", video: vid("pierced", "Pierced Dublin") },
+          { name: "Wonderskin", link: "https://www.instagram.com/reel/DaQDcFUtF35/", video: vid("wonderskin-supergirl", "Wonderskin × Supergirl") },
+          { name: "Pierced", link: "https://www.instagram.com/reel/DdD2lqWuhVs/", video: vid("pierced", "Pierced Dublin") },
           { name: "Aerre" },
-          { name: "Mermade Hair", video: vid("mermade-hair", "Mermade Hair") },
-          { name: "Flashback", video: vid("giveaway-clutch-flashback-seoul-tonic-mermade", "Flashback camera giveaway") },
-          { name: "Clutch", video: vid("giveaway-clutch-flashback-seoul-tonic-mermade", "Clutch glue giveaway") },
+          { name: "Mermade Hair", link: "https://www.instagram.com/reel/DOCvPZUjxud/", video: vid("mermade-hair", "Mermade Hair") },
+          { name: "Flashback", link: "https://www.instagram.com/reel/DQBga5djh2k/", video: vid("giveaway-clutch-flashback-seoul-tonic-mermade", "Flashback camera giveaway") },
+          { name: "Clutch", link: "https://www.instagram.com/reel/DQBga5djh2k/", video: vid("giveaway-clutch-flashback-seoul-tonic-mermade", "Clutch glue giveaway") },
           { name: "BEA", video: vid("bea-brow-artistry", "BEA Brow Artistry") },
-          { name: "Casetify", video: vid("casetify-stranger-things", "Casetify × Stranger Things") },
+          { name: "Casetify", link: "https://www.instagram.com/reel/DSrEu_Ij35y/", video: vid("casetify-stranger-things", "Casetify × Stranger Things") },
         ],
       },
       {
         id: "fm",
         label: "Festivals & Music",
         brands: [
-          { name: "Rolling Sets", video: vid("rolling-sets", "Rolling Sets festival") },
-          { name: "Yours & Owls", video: vid("yours-and-owls", "Yours & Owls 10th birthday bash") },
-          { name: "Untitled", video: vid("untitled-dom-dolla", "Untitled Group × Dom Dolla") },
-          { name: "Dom Dolla", video: vid("untitled-dom-dolla", "Untitled Group × Dom Dolla") },
-          { name: "Zach Bryan", video: vid("zach-bryan", "Zach Bryan") },
+          { name: "Rolling Sets", link: "https://www.instagram.com/reel/DE6GayxTOzU/", video: vid("rolling-sets", "Rolling Sets festival") },
+          { name: "Yours & Owls", link: "https://www.instagram.com/reel/DBIDcNHCu9_/", more: [{ label: "Yours & Owls Festival 2025", url: "https://www.instagram.com/reel/DJXxAwhzrTf/" }], video: vid("yours-and-owls", "Yours & Owls 10th birthday bash") },
+          { name: "Untitled", link: "https://www.instagram.com/reel/DSlRHLuk2ED/", video: vid("untitled-dom-dolla", "Untitled Group × Dom Dolla") },
+          { name: "Dom Dolla", link: "https://www.instagram.com/reel/DSlRHLuk2ED/", video: vid("untitled-dom-dolla", "Untitled Group × Dom Dolla") },
+          { name: "Zach Bryan", link: "https://www.instagram.com/reel/DZ0AxLqt2ae/", video: vid("zach-bryan", "Zach Bryan") },
         ],
       },
     ] as BrandCategory[],
@@ -284,19 +283,19 @@ export const site = {
     title: "short form content",
     featured: {
       title: "I ♡ my job",
-      note: { label: "fan favourite", text: "Stranger Things × Luna Park", views: "175.2K" },
+      note: { label: "fan favourite", text: "Stranger Things × Luna Park", views: "175.2K", url: "https://vt.tiktok.com/ZSpCTeRFG/" },
       video: vid("stranger-things-luna-park", "Stranger Things: The Experience × Luna Park"),
     },
-    /** The row of phones. `views` is optional; `url` is the TikTok/Instagram post (paste the real post link over TIKTOK) */
+    /** The row of phones. `views` is optional; `url` is the TikTok/Instagram post (Instagram reel or TikTok link) */
     videos: [
-      { title: "Stranger Things × Luna Park", platform: "TikTok", url: TIKTOK, video: vid("stranger-things-luna-park-2", "Stranger Things × Luna Park") },
-      { title: "Zootopia 2 premiere", platform: "TikTok", url: TIKTOK, video: vid("zootopia-2", "Disney+ Zootopia 2 premiere") },
-      { title: "TikTok Awards 2024", platform: "TikTok", url: TIKTOK, video: vid("tiktok-awards", "TikTok Awards 2024") },
-      { title: "Ireland Fashion Week", platform: "TikTok", url: TIKTOK, video: vid("ireland-fashion-week", "Ireland Fashion Week") },
-      { title: "Casetify × Stranger Things", platform: "TikTok", url: TIKTOK, video: vid("casetify-stranger-things", "Casetify × Stranger Things") },
-      { title: "The Boathouse × Yours & Owls", views: "15.9K", platform: "TikTok", url: TIKTOK, video: vid("boathouse-yours-and-owls", "The Boathouse × Yours & Owls") },
-      { title: "Maxibon × Stranger Things", platform: "TikTok", url: TIKTOK, video: vid("maxibon-stranger-things", "Maxibon × Stranger Things") },
-      { title: "Rolling Sets Festival", platform: "TikTok", url: TIKTOK, video: vid("rolling-sets", "Rolling Sets festival") },
+      { title: "Stranger Things × Luna Park", platform: "Instagram", url: "https://www.instagram.com/reel/DRp9Y7ak4sP/", video: vid("stranger-things-luna-park-2", "Stranger Things × Luna Park") },
+      { title: "Zootopia 2 premiere", platform: "Instagram", url: "https://www.instagram.com/reel/DSXLYlVD0Vg/", video: vid("zootopia-2", "Disney+ Zootopia 2 premiere") },
+      { title: "TikTok Awards 2024", platform: "Instagram", url: "https://www.instagram.com/reel/DDEFjyYz8IJ/", video: vid("tiktok-awards", "TikTok Awards 2024") },
+      { title: "Ireland Fashion Week", platform: "Instagram", url: "https://www.instagram.com/reel/DeW3E6WO-F1/", video: vid("ireland-fashion-week", "Ireland Fashion Week") },
+      { title: "Casetify × Stranger Things", platform: "Instagram", url: "https://www.instagram.com/reel/DSrEu_Ij35y/", video: vid("casetify-stranger-things", "Casetify × Stranger Things") },
+      { title: "The Boathouse × Yours & Owls", views: "15.9K", platform: "Instagram", url: "https://www.instagram.com/reel/DSiuyank59u/", video: vid("boathouse-yours-and-owls", "The Boathouse × Yours & Owls") },
+      { title: "Maxibon × Stranger Things", platform: "Instagram", url: "https://www.instagram.com/reel/DQv2iEGj4Tf/", video: vid("maxibon-stranger-things", "Maxibon × Stranger Things") },
+      { title: "Rolling Sets Festival", platform: "Instagram", url: "https://www.instagram.com/reel/DE6GayxTOzU/", video: vid("rolling-sets", "Rolling Sets festival") },
     ] as { title: string; views?: string; platform: string; url: string; video: Clip }[],
   },
 
