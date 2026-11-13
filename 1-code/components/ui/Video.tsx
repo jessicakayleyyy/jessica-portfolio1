@@ -49,8 +49,7 @@ export function Video({ clip, className = "" }: { clip: Clip; className?: string
       muted
       loop
       playsInline
-      autoPlay={!reduce}
-      preload="metadata"
+      preload="none"
       poster={clip.poster}
       aria-label={clip.label}
       onError={() => {

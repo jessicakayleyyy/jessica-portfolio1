@@ -17,7 +17,8 @@ type Tab = (typeof TABS)[number];
 const portrait = (hairStyle: HairStyle, colour: HairColour, mk: MakeupId) => {
   const h = hairFor(hairStyle, colour);
   const m = makeupFor(mk);
-  return h.back + BODY + m.under + FACE + m.over + h.front + m.top;
+  // Drawn without the sketchy filters: the cards are small, and filters are slow to paint
+  return (h.back + BODY + m.under + FACE + m.over + h.front + m.top).replace(/ filter="url\(#[a-z]+\)"/g, "");
 };
 
 const wornIds = (o: Outfit) => [o.Tops, o.Bottoms, o.Dresses, o.Layers, o.Shoes, ...o.Extras].filter(Boolean) as string[];
