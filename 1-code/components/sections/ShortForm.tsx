@@ -79,6 +79,7 @@ export function ShortForm() {
                 <span className="fav"><i aria-hidden="true">♡</i>{sf.featured.note.label}</span>
                 <span className="fav-title">{sf.featured.note.text}</span>
                 <span className="fav-views">{sf.featured.note.views} views</span>
+                <a className="sf-link" href={sf.featured.note.url} target="_blank" rel="noopener noreferrer">Watch on TikTok ↗</a>
               </p>
             </div>
           </div>

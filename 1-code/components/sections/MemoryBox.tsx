@@ -8,6 +8,7 @@ import { Peek } from "@/components/ui/Peek";
 import { site, type Brand } from "@/content/site";
 
 const short = (r?: string) => r?.replace(/ views$/, "");
+const where = (url: string) => (/tiktok\./.test(url) ? "TikTok" : /instagram\./.test(url) ? "Instagram" : "the post");
 
 /**
  * "What's in my memory box?" Category tabs with a sliding underline, brand names set
@@ -96,6 +97,11 @@ export function MemoryBox() {
                       {b.name}
                       <sup>▶{b.result && /views/.test(b.result) ? ` ${short(b.result)}` : ""}</sup>
                     </button>
+                  ) : b.link ? (
+                    <a className="mb-nm has" href={b.link} target="_blank" rel="noopener noreferrer" data-cursor="watch" aria-label={`${b.name}: watch on ${where(b.link)}`}>
+                      {b.name}
+                      <sup>↗</sup>
+                    </a>
                   ) : (
                     <span className="mb-nm">{b.name}</span>
                   )}
@@ -125,9 +131,14 @@ export function MemoryBox() {
               <p className="mono">{cat.label}</p>
               <h3 className="font-serif text-[2.2rem] leading-none">{open.name}</h3>
               {open.result && <p className="mt-3">{open.result}</p>}
-              {open.link && (
-                <a className="cta cta-line mt-5" href={open.link} target="_blank" rel="noopener noreferrer">Watch the video ↗</a>
-              )}
+              <div className="mt-5 flex flex-wrap gap-3">
+                {open.link && (
+                  <a className="cta cta-dark" href={open.link} target="_blank" rel="noopener noreferrer">Watch on {where(open.link)} ↗</a>
+                )}
+                {open.more?.map((m) => (
+                  <a key={m.url} className="cta cta-line" href={m.url} target="_blank" rel="noopener noreferrer">{m.label} ↗</a>
+                ))}
+              </div>
             </div>
           </div>
         )}

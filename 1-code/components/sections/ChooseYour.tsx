@@ -30,7 +30,7 @@ export function ChooseYour() {
                 onFocus={() => setSay(p.say)}
               >
                 <span className="person-pill">{p.label}</span>
-                <Photo media={p.cutout} sizes="(max-width: 760px) 45vw, 210px" fit="contain" className="person-fig" />
+                <Photo media={p.cutout} sizes="(max-width: 760px) 45vw, 210px" className="person-fig" />
                 <span className="person-shadow" aria-hidden="true" />
               </a>
             ))}

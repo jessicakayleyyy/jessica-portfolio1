@@ -16,6 +16,7 @@ export function Hero() {
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const [shot, setShot] = useState(0);
+  const [flipped, setFlipped] = useState(false);
   const [flash, setFlash] = useState(0);
   const music = useMusic(site.music);
   // The record idles round after load; once someone uses the iPod it follows the music
@@ -96,8 +97,8 @@ export function Hero() {
             <Draggable style={{ left: 40, bottom: -4 }} rotate={-3} depth={18} mouseX={mx} mouseY={my}>
               <TicketStub {...h.ticket} />
             </Draggable>
-            <Draggable style={{ left: 250, top: 10 }} rotate={-8} depth={26} mouseX={mx} mouseY={my}>
-              <Polaroid media={h.printPhoto} caption={h.printCaption} />
+            <Draggable style={{ left: 250, top: 10 }} rotate={-8} depth={26} mouseX={mx} mouseY={my} cursor="flip" onTap={() => setFlipped((f) => !f)}>
+              <Polaroid media={h.printPhoto} caption={h.printCaption} back={h.printBack} backCaption={h.printBackCaption} flipped={flipped} />
             </Draggable>
             <Draggable style={{ left: 270, bottom: 60 }} rotate={10} depth={30} mouseX={mx} mouseY={my}>
               <BottleCap text={h.bottleCap} />
