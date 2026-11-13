@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { DEFS } from "@/components/collage/wardrobe";
+import { DEFS, DOLL_VIEWBOX } from "@/components/collage/wardrobe";
 
 /**
  * The doll look a visitor styled in "Jess's Dress-Up", shared with the contact letter
@@ -35,10 +35,10 @@ const WL_CSS = `.fill *:not([style*="stroke:"]){stroke:none!important}
 
 /** Turns the doll into a small JPEG (data URL) for the email. Kept small so the form stays fast. */
 async function renderJpeg(inner: string): Promise<string> {
-  const W = 300, H = 1100;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 14 120 440" width="${W}" height="${H}">
+  const W = 300, H = 1145;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${DOLL_VIEWBOX}" width="${W}" height="${H}">
     <defs>${DEFS}</defs><style>${WL_CSS}</style>
-    <rect x="40" y="14" width="120" height="440" fill="#F4F2EE"/>${inner}</svg>`;
+    <rect x="40" y="-4" width="120" height="458" fill="#F4F2EE"/>${inner}</svg>`;
   const img = new Image();
   img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
   await img.decode();

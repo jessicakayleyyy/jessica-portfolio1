@@ -2,14 +2,26 @@
 
 import { useReducedMotion } from "framer-motion";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { BODY, BRA, CATEGORIES, DEFS, FACE, HAIR_BACK, HAIR_FRONT, HEAD_EXTRAS, LAYER_ORDER, LEGWEAR, WARDROBE, drawn, type Category } from "@/components/collage/wardrobe";
+import { BODY, BRA, CATEGORIES, DEFS, DOLL_VIEWBOX, FACE, HAIR_COLOURS, HAIR_STYLES, HEAD_EXTRAS, LAYER_ORDER, LEGWEAR, MAKEUP, TATTOOS, UNDIES, WARDROBE, drawn, hairFor, makeupFor, type Category, type HairColour, type HairStyle, type MakeupId } from "@/components/collage/wardrobe";
 import { lookStore } from "@/lib/look";
+/** Trousers that reach the ankle */
+const LONG_BOTTOMS = ["lowrise", "sweats"];
 import { site } from "@/content/site";
 
 type Outfit = { Tops: string | null; Bottoms: string | null; Dresses: string | null; Layers: string | null; Shoes: string | null; Extras: string[] };
 const EMPTY: Outfit = { Tops: null, Bottoms: null, Dresses: null, Layers: null, Shoes: null, Extras: [] };
 type Snap = { id: number; svg: string; caption: string; rotate: number };
 const PICKS = ["Tops", "Bottoms", "Dresses", "Shoes", "Layers"] as const;
+/** Closet tabs: the clothing categories, plus hair and makeup */
+const TABS = [...CATEGORIES, "Hair", "Makeup"] as const;
+type Tab = (typeof TABS)[number];
+/** A head-and-shoulders portrait for the hair and makeup cards */
+const portrait = (hairStyle: HairStyle, colour: HairColour, mk: MakeupId) => {
+  const h = hairFor(hairStyle, colour);
+  const m = makeupFor(mk);
+  // Drawn without the sketchy filters: the cards are small, and filters are slow to paint
+  return (h.back + BODY + m.under + FACE + m.over + h.front + m.top).replace(/ filter="url\(#[a-z]+\)"/g, "");
+};
 
 const wornIds = (o: Outfit) => [o.Tops, o.Bottoms, o.Dresses, o.Layers, o.Shoes, ...o.Extras].filter(Boolean) as string[];
 const idsIn = (cat: Category) => Object.keys(WARDROBE).filter((id) => WARDROBE[id].cat === cat);
@@ -61,25 +73,36 @@ export function DressMe() {
   const start = d.occasions.find((o) => o.id === d.startWith) ?? d.occasions[0];
   const [outfit, setOutfit] = useState<Outfit>(() => outfitFor(start.look));
   const [occ, setOcc] = useState<string | null>(start.id);
-  const [cat, setCat] = useState<Category>("Tops");
+  const [cat, setCat] = useState<Tab>("Tops");
   const [snaps, setSnaps] = useState<Snap[]>([]);
   const [hop, setHop] = useState(0);
   const [flash, setFlash] = useState(0);
-  const [dropOk, setDropOk] = useState(false);
+  const [hairStyle, setHairStyle] = useState<HairStyle>("blowout");
+  const [hairColour, setHairColour] = useState<HairColour>("chestnut");
+  const [makeup, setMakeup] = useState<MakeupId>("natural");
   const [lifted, setLifted] = useState<string | null>(null);
   const prevWorn = useRef<Set<string>>(new Set(wornIds(outfit)));
   const dollRef = useRef<SVGSVGElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const ghostRef = useRef<SVGSVGElement | null>(null);
-  const drag = useRef<{ id: string; x: number; y: number; moved: boolean } | null>(null);
+  const drag = useRef<{ id: string; x: number; y: number; moved: boolean; px: number; py: number; raf: number; ok: boolean } | null>(null);
   const looks = useRef(0);
 
   const worn = wornIds(outfit);
+  const hair = hairFor(hairStyle, hairColour);
+  const styleIdx = HAIR_STYLES.findIndex((h) => h.id === hairStyle);
+  const mk = makeupFor(makeup);
+  const mkIdx = MAKEUP.findIndex((m) => m.id === makeup);
+  const stepMakeup = (d: number) => { touched.current = true; setMakeup(MAKEUP[(mkIdx + d + MAKEUP.length) % MAKEUP.length].id); };
   const occasion = d.occasions.find((o) => o.id === occ);
 
   // Pieces that were just put on get a little "drop on" animation
   const layer = (id: string) => `<g class="${prevWorn.current.has(id) || reduce ? "" : "new"}">${drawn(WARDROBE[id].svg)}</g>`;
-  const clothes = [...LEGWEAR.filter((id) => worn.includes(id)), ...LAYER_ORDER.flatMap((c) => idsIn(c).filter((id) => worn.includes(id)))].map(layer).join("");
+  // Under full-length trousers only the feet of the shoes show (no boot shafts peeking through)
+  const longPants = !!outfit.Bottoms && LONG_BOTTOMS.includes(outfit.Bottoms);
+  const clothes = [...LEGWEAR.filter((id) => worn.includes(id)), ...LAYER_ORDER.flatMap((c) => idsIn(c).filter((id) => worn.includes(id)))]
+    .map((id) => (longPants && WARDROBE[id].cat === "Shoes" ? `<g clip-path="url(#feetOnly)">${layer(id)}</g>` : layer(id)))
+    .join("");
   const bodyExtras = idsIn("Extras").filter((id) => worn.includes(id) && !HEAD_EXTRAS.includes(id) && !LEGWEAR.includes(id)).map(layer).join("");
   const headExtras = HEAD_EXTRAS.filter((id) => worn.includes(id)).map(layer).join("");
   useLayoutEffect(() => { prevWorn.current = new Set(worn); });
@@ -94,7 +117,7 @@ export function DressMe() {
       items: worn.map((id) => WARDROBE[id].name),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [outfit, occ]);
+  }, [outfit, occ, hairStyle, hairColour, makeup]);
 
   const put = (id: string, force = false) => { touched.current = true; setOutfit((o) => withPiece(o, id, force)); setOcc(null); };
 
@@ -106,7 +129,7 @@ export function DressMe() {
   const onDown = (e: React.PointerEvent<HTMLButtonElement>, id: string) => {
     if (e.button !== 0) return;
     e.preventDefault(); // stop the browser's own drag / text selection, which would cancel ours and scroll the page
-    drag.current = { id, x: e.clientX, y: e.clientY, moved: false };
+    drag.current = { id, x: e.clientX, y: e.clientY, moved: false, px: e.clientX, py: e.clientY, raf: 0, ok: false };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
   const onMove = (e: React.PointerEvent<HTMLButtonElement>) => {
@@ -115,13 +138,28 @@ export function DressMe() {
     if (!dr.moved && Math.hypot(e.clientX - dr.x, e.clientY - dr.y) > 6) {
       dr.moved = true;
       const g = e.currentTarget.querySelector("svg")?.cloneNode(true) as SVGSVGElement | undefined;
-      if (g) { g.setAttribute("class", "ghost wl"); document.body.appendChild(g); ghostRef.current = g; }
+      // The floating copy skips the sketchy filters so it glides smoothly
+      g?.querySelectorAll("[filter]").forEach((n) => n.removeAttribute("filter"));
+      if (g) {
+        g.setAttribute("class", "ghost wl");
+        g.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%) rotate(-6deg)`;
+        document.body.appendChild(g);
+        ghostRef.current = g;
+      }
       setLifted(dr.id);
     }
-    if (dr.moved && ghostRef.current) {
-      ghostRef.current.style.left = `${e.clientX}px`;
-      ghostRef.current.style.top = `${e.clientY}px`;
-      setDropOk(overStage(e.clientX, e.clientY));
+    // Move the floating piece at most once per frame, on the GPU, without re-rendering the doll
+    dr.px = e.clientX;
+    dr.py = e.clientY;
+    if (dr.moved && !dr.raf) {
+      dr.raf = requestAnimationFrame(() => {
+        dr.raf = 0;
+        const g = ghostRef.current;
+        if (!g) return;
+        g.style.transform = `translate3d(${dr.px}px, ${dr.py}px, 0) translate(-50%, -50%) rotate(-6deg)`;
+        const ok = overStage(dr.px, dr.py);
+        if (ok !== dr.ok) { dr.ok = ok; stageRef.current?.classList.toggle("drop-ok", ok); }
+      });
     }
   };
   const onUp = (e: React.PointerEvent<HTMLButtonElement>) => {
@@ -129,11 +167,12 @@ export function DressMe() {
     if (!dr) return;
     if (dr.moved) { if (e.type === "pointerup" && overStage(e.clientX, e.clientY)) put(dr.id, true); }
     else if (e.type === "pointerup") put(dr.id);
+    if (dr.raf) cancelAnimationFrame(dr.raf);
     ghostRef.current?.remove();
     ghostRef.current = null;
     drag.current = null;
     setLifted(null);
-    setDropOk(false);
+    stageRef.current?.classList.remove("drop-ok");
   };
 
   // "Click the arrows for more choices!": cycle through each category (including "none")
@@ -193,13 +232,13 @@ export function DressMe() {
               <svg
                 key={hop}
                 ref={dollRef}
-                className={`doll wl ${hop && !reduce ? "hop" : ""} ${dropOk ? "drop-ok" : ""}`}
-                viewBox="40 14 120 440"
+                className={`doll wl ${hop && !reduce ? "hop" : ""}`}
+                viewBox={DOLL_VIEWBOX}
                 role="img"
                 aria-label={`Illustrated Jess wearing: ${worn.map((id) => WARDROBE[id].name).join(", ") || "her basics"}`}
                 data-cursor="twirl"
                 onClick={() => setHop((h) => h + 1)}
-                dangerouslySetInnerHTML={{ __html: HAIR_BACK + BODY + (outfit.Tops || outfit.Dresses ? "" : BRA) + FACE + clothes + bodyExtras + HAIR_FRONT + headExtras }}
+                dangerouslySetInnerHTML={{ __html: hair.back + BODY + TATTOOS + (outfit.Tops || outfit.Dresses ? "" : BRA) + (outfit.Bottoms || outfit.Dresses ? "" : UNDIES) + mk.under + FACE + mk.over + clothes + bodyExtras + hair.front + mk.top + headExtras }}
               />
               <span className="sig">Jess</span>
               {flash > 0 && <div key={flash} className="flash go" />}
@@ -207,7 +246,7 @@ export function DressMe() {
                 {snaps.map((s) => (
                   <figure key={s.id} className="snap" style={{ rotate: `${s.rotate}deg` }}>
                     <div className="img">
-                      <svg className="wl" viewBox="40 14 120 440" aria-hidden="true" dangerouslySetInnerHTML={{ __html: s.svg }} />
+                      <svg className="wl" viewBox={DOLL_VIEWBOX} aria-hidden="true" dangerouslySetInnerHTML={{ __html: s.svg }} />
                     </div>
                     <figcaption>{s.caption}</figcaption>
                   </figure>
@@ -226,6 +265,21 @@ export function DressMe() {
                   </div>
                 );
               })}
+              <div className="pick">
+                <button type="button" className="arr" aria-label="Previous hairstyle" onClick={() => { touched.current = true; setHairStyle(HAIR_STYLES[(styleIdx + HAIR_STYLES.length - 1) % HAIR_STYLES.length].id); }}>◀</button>
+                <span className="pick-name"><small>hair</small><b>{HAIR_STYLES[styleIdx].name}</b></span>
+                <button type="button" className="arr" aria-label="Next hairstyle" onClick={() => { touched.current = true; setHairStyle(HAIR_STYLES[(styleIdx + 1) % HAIR_STYLES.length].id); }}>▶</button>
+              </div>
+              <div className="pick">
+                <button type="button" className="arr" aria-label="Previous makeup look" onClick={() => stepMakeup(-1)}>◀</button>
+                <span className="pick-name"><small>makeup</small><b>{MAKEUP[mkIdx].name}</b></span>
+                <button type="button" className="arr" aria-label="Next makeup look" onClick={() => stepMakeup(1)}>▶</button>
+              </div>
+              <div className="hair-colours" role="radiogroup" aria-label="Hair colour">
+                {HAIR_COLOURS.map((h) => (
+                  <button key={h.id} type="button" role="radio" aria-checked={hairColour === h.id} aria-label={h.name} title={h.name} style={{ background: h.swatch }} onClick={() => { touched.current = true; setHairColour(h.id); }} />
+                ))}
+              </div>
             </div>
             <div className="mirror-btns">
               <button type="button" className="cta cta-line" onClick={shuffle} data-cursor="shuffle">Shuffle</button>
@@ -245,11 +299,37 @@ export function DressMe() {
             </div>
 
             <div className="cats" role="tablist" aria-label="Wardrobe">
-              {CATEGORIES.map((c) => (
+              {TABS.map((c) => (
                 <button key={c} type="button" role="tab" aria-selected={cat === c} onClick={() => setCat(c)}>{c}</button>
               ))}
             </div>
-            <p className="drag-hint">Drag a piece onto me, or tap to try it on.</p>
+            <p className="drag-hint">{cat === "Hair" ? "Tap a hairstyle to try it, then pick a colour." : cat === "Makeup" ? "Tap a look to do my makeup." : "Drag a piece onto me, or tap to try it on."}</p>
+            {cat === "Hair" && (
+              <div className="items looks" role="tabpanel" key="hair">
+                <div className="hair-colours wide" role="radiogroup" aria-label="Hair colour">
+                  {HAIR_COLOURS.map((h) => (
+                    <button key={h.id} type="button" role="radio" aria-checked={hairColour === h.id} aria-label={h.name} title={h.name} style={{ background: h.swatch }} onClick={() => { touched.current = true; setHairColour(h.id); }} />
+                  ))}
+                </div>
+                {HAIR_STYLES.map((h, i) => (
+                  <button key={h.id} type="button" className="item look" aria-pressed={hairStyle === h.id} style={{ animationDelay: `${i * 60}ms` }} onClick={() => { touched.current = true; setHairStyle(h.id); }}>
+                    <svg className="thumb face-thumb wl" viewBox="50 -4 100 100" aria-hidden="true" dangerouslySetInnerHTML={{ __html: portrait(h.id, hairColour, makeup) }} />
+                    <span className="nm">{h.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {cat === "Makeup" && (
+              <div className="items looks" role="tabpanel" key="makeup">
+                {MAKEUP.map((m, i) => (
+                  <button key={m.id} type="button" className="item look" aria-pressed={makeup === m.id} style={{ animationDelay: `${i * 60}ms` }} onClick={() => { touched.current = true; setMakeup(m.id); }}>
+                    <svg className="thumb face-thumb wl" viewBox="77 31 46 46" aria-hidden="true" dangerouslySetInnerHTML={{ __html: portrait(hairStyle, hairColour, m.id) }} />
+                    <span className="nm"><i className="sw" style={{ background: m.swatch }} />{m.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {cat !== "Hair" && cat !== "Makeup" && (
             <div className="items" role="tabpanel" key={cat}>
               {idsIn(cat).map((id, i) => (
                 <button
@@ -273,6 +353,7 @@ export function DressMe() {
                 </button>
               ))}
             </div>
+            )}
           </div>
         </div>
       </div>
