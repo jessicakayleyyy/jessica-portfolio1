@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Photo } from "@/components/ui/Photo";
+import { PhoneMockup } from "@/components/collage/PhoneMockup";
 import { Peek } from "@/components/ui/Peek";
-import type { Media } from "@/content/site";
+import type { Clip } from "@/content/site";
 
-type Item = { id: string; title: string; points: string[]; body: string; photo: Media };
+type Item = { id: string; title: string; points: string[]; body: string; video: Clip };
 
-/** The four services. Hovering one spotlights it and floats its photo beside the cursor. */
+/** The four services. Hovering one spotlights it and floats a phone playing one of its videos beside the cursor. */
 export function ServiceList({ items }: { items: Item[] }) {
   const [hover, setHover] = useState<Item | null>(null);
   return (
@@ -26,7 +26,7 @@ export function ServiceList({ items }: { items: Item[] }) {
         ))}
       </div>
       <Peek show={!!hover} offsetX={130} rotate={3}>
-        {hover && <Photo media={hover.photo} sizes="170px" style={{ width: 170, height: 210, boxShadow: "0 30px 50px -20px rgba(0,0,0,.8)" }} />}
+        {hover && <PhoneMockup key={hover.id} clip={hover.video} width={150} eager />}
       </Peek>
     </>
   );
