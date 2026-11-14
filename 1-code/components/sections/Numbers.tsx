@@ -2,7 +2,7 @@ import { Bar } from "@/components/ui/Bar";
 import { CountUp } from "@/components/ui/CountUp";
 import { Donut } from "@/components/ui/Donut";
 import { Reveal } from "@/components/ui/Reveal";
-import type { NumbersData } from "@/lib/numbers";
+import { short, type NumbersData } from "@/lib/numbers";
 
 /** "My Numbers". `n` is the live Instagram stats merged over the hand-typed ones (see lib/numbers.ts) */
 export function Numbers({ n }: { n: NumbersData }) {
@@ -80,6 +80,33 @@ export function Numbers({ n }: { n: NumbersData }) {
               </ol>
             </div>
             <a className="gram-next" href="#services">Work with me →</a>
+          </div>
+          <div className="gram-also">
+            <p className="also-title">also on <i aria-hidden="true">♡</i></p>
+            <ul className="also-list">
+              {n.also.list.map((p) => (
+                <li key={p.platform}>
+                  <a href={p.url} target="_blank" rel="noopener noreferrer" className={`also-pill also-${p.platform.toLowerCase()}`}>
+                    <span className="also-icon" aria-hidden="true">{p.platform === "TikTok" ? "♪" : "▶"}</span>
+                    <span className="also-name">{p.platform}</span>
+                    {p.showCount ? (
+                      <span className="also-nums">
+                        <b>{short(p.count)}</b> {p.countLabel}
+                        {p.extra ? <> · <b>{short(p.extra)}</b> {p.extraLabel}</> : null}
+                      </span>
+                    ) : (
+                      <span className="also-nums"><em>{"tagline" in p ? p.tagline : ""}</em></span>
+                    )}
+                    <span className="also-go" aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div className="also-total" aria-label={`Combined audience: ${n.also.combined.toLocaleString("en-US")} followers across Instagram, TikTok and YouTube`}>
+              <span className="mono">combined audience</span>
+              <b>{short(n.also.combined)}</b>
+              <span className="also-sub">across all platforms ✦</span>
+            </div>
           </div>
           <p className="mono mt-5 text-muted">Last updated {n.updated}</p>
         </Reveal>
