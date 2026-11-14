@@ -18,9 +18,21 @@ function compact(n: number): Pick<Headline, "value" | "suffix" | "decimals" | "c
 const prettyDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-IE", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Dublin" });
 
+/** The "Also on" platforms with the freshest counts, plus everyone added together */
+function alsoOn(live: LiveStats | null, igFollowers: number) {
+  const list = site.numbers.alsoOn.map((p) => {
+    const count = p.platform === "TikTok" ? live?.tiktokFollowers ?? p.count : live?.youtubeSubs ?? p.count;
+    const extra = p.platform === "TikTok" ? live?.tiktokLikes ?? p.extra : p.extra;
+    return { ...p, count, extra };
+  });
+  const combined = igFollowers + list.reduce((a, p) => a + (p.count || 0), 0);
+  return { list, combined };
+}
+
 export function mergeNumbers(live: LiveStats | null) {
   const n = site.numbers;
-  if (!live) return { ...n, extras: [] as Headline[] };
+  const typedFollowers = n.headline.find((h) => h.label === "Followers")?.value ?? 0;
+  if (!live) return { ...n, extras: [] as Headline[], also: alsoOn(null, typedFollowers) };
 
   const headline = n.headline.map((h): Headline => {
     if (h.label === "Views" && live.views30) return { label: h.label, note: h.note, ...compact(live.views30) };
@@ -47,8 +59,13 @@ export function mergeNumbers(live: LiveStats | null) {
     gender: live.gender ?? n.gender,
     locations: live.locations?.length ? live.locations : n.locations,
     updated: live.updatedAt ? prettyDate(live.updatedAt) : n.updated,
+    also: alsoOn(live, live.followers ?? typedFollowers),
   };
 }
+
+/** 9407 → "9.4K", 658300 → "658K" */
+export const short = (n: number) =>
+  n >= 1e6 ? `${(n / 1e6).toFixed(1).replace(/\.0$/, "")}M` : n >= 1e5 ? `${Math.round(n / 1e3)}K` : n >= 1e3 ? `${(n / 1e3).toFixed(1).replace(/\.0$/, "")}K` : String(n);
 
 export type NumbersData = ReturnType<typeof mergeNumbers>;
 

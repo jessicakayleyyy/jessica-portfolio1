@@ -32,6 +32,9 @@ export type LiveStats = {
   ages?: { range: string; pct: number }[];
   gender?: { women: number; men: number };
   locations?: string[];
+  tiktokFollowers?: number;
+  tiktokLikes?: number;
+  youtubeSubs?: number;
   /** ISO date of the last successful update */
   updatedAt?: string;
 };
@@ -164,6 +167,23 @@ async function fetchStats(token: string): Promise<{ stats: LiveStats; errors: st
     const avg = (a: number[]) => (a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length) : undefined);
     s.avgReach = avg(reaches);
     s.avgReelViews = avg(reelViews);
+  });
+
+  // Best effort: TikTok and YouTube follower counts from the public profile pages
+  const page = async (url: string) => {
+    const res = await fetch(url, { cache: "no-store", headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36", "Accept-Language": "en" } });
+    return res.ok ? res.text() : "";
+  };
+  await attempt("tiktok", async () => {
+    const html = await page("https://www.tiktok.com/@jessicakayleyyy");
+    const f = html.match(/"followerCount":(\d+)/)?.[1], h = html.match(/"heartCount":(\d+)/)?.[1];
+    if (f) s.tiktokFollowers = Number(f);
+    if (h) s.tiktokLikes = Number(h);
+  });
+  await attempt("youtube", async () => {
+    const html = await page("https://www.youtube.com/@jessicakayleyyy");
+    const m = html.match(/"([\d.,]+)([KM]?) subscribers"/);
+    if (m) s.youtubeSubs = Math.round(parseFloat(m[1].replace(/,/g, "")) * (m[2] === "M" ? 1e6 : m[2] === "K" ? 1e3 : 1));
   });
 
   return { stats: s, errors };
