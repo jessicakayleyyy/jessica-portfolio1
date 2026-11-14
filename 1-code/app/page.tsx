@@ -12,8 +12,13 @@ import { Cursor } from "@/components/ui/Cursor";
 import { Glitter } from "@/components/ui/Glitter";
 import { SideTabs } from "@/components/ui/SideTabs";
 import { site } from "@/content/site";
+import { getNumbers } from "@/lib/numbers";
 
-export default function Home() {
+// Re-check the saved Instagram stats at most once an hour (the daily job also refreshes the page)
+export const revalidate = 3600;
+
+export default async function Home() {
+  const numbers = await getNumbers();
   return (
     <>
       <Intro />
@@ -28,7 +33,7 @@ export default function Home() {
         <ChooseYour />
         <About />
         <MemoryBox />
-        <Numbers />
+        <Numbers n={numbers} />
         <Services />
         <ShortForm />
         <DressMe />
