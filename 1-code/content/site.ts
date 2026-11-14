@@ -272,7 +272,7 @@ export const site = {
      */
     alsoOn: [
       { platform: "TikTok", url: "https://www.tiktok.com/@jessicakayleyyy", count: 9407, countLabel: "followers", extra: 658300, extraLabel: "likes", showCount: true },
-      { platform: "YouTube", url: "https://www.youtube.com/@jessicakayleyyy", count: 137, countLabel: "subscribers", tagline: "vlogs from dublin", showCount: false },
+      { platform: "YouTube", url: "https://www.youtube.com/@jessicakayleyyy", count: 137, countLabel: "subscribers", tagline: "vlogs from my travels", showCount: false },
     ],
   },
 
