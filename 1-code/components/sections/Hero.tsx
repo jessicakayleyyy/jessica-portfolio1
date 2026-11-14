@@ -18,7 +18,7 @@ export function Hero() {
   const [shot, setShot] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [flash, setFlash] = useState(0);
-  const music = useMusic(site.music);
+  const music = useMusic(site.music, site.musicAutoplay);
   // The record idles round after load; once someone uses the iPod it follows the music
   const [idle, setIdle] = useState(false);
   const [touched, setTouched] = useState(false);
