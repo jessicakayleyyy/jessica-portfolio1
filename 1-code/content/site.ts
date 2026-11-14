@@ -116,7 +116,7 @@ export const site = {
    *    Leave the list empty [] to make the iPod purely decorative.
    */
   music: [
-    { title: "zen yoga mom playlist part 2", src: "/assets/music/playlist.m4a" },
+    { title: "jess fm ♡", src: "/assets/music/playlist.m4a" },
   ] as { title: string; artist?: string; src: string }[],
   /** Start the music automatically (as soon as the visitor first clicks or taps; browsers block sound before that) */
   musicAutoplay: true,
