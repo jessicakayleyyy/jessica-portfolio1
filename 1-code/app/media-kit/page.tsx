@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { site } from "@/content/site";
+import { getNumbers } from "@/lib/numbers";
 
 /**
  * Printable media kit (A4, 3 pages), built from the same content as the website.
@@ -8,8 +9,8 @@ import { site } from "@/content/site";
  */
 export const metadata: Metadata = { title: "Media Kit", robots: { index: false } };
 
-const n = site.numbers;
-const fmt = (h: (typeof n.headline)[number]) =>
+type H = { value: number; suffix?: string; decimals?: number; comma?: boolean };
+const fmt = (h: H) =>
   `${"comma" in h && h.comma ? h.value.toLocaleString("en-US") : "decimals" in h ? h.value.toFixed(h.decimals) : h.value}${"suffix" in h ? h.suffix : ""}`;
 const posters = [
   { src: "/assets/videos/tiktok-awards.jpg", cap: "TikTok Awards" },
@@ -19,7 +20,10 @@ const posters = [
 const handle = site.socials[0]?.handle ?? "";
 const hasEmail = /@/.test(site.email) && !site.email.startsWith("[");
 
-export default function MediaKit() {
+export const revalidate = 3600;
+
+export default async function MediaKit() {
+  const n = await getNumbers();
   const work = site.shortForm.videos.slice(0, 6);
   return (
     <main className="mk">
