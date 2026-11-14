@@ -231,7 +231,7 @@
   .hero { position: relative; padding-block: 28px 90px; overflow: hidden; }
   .hero-meta { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: .95rem; }
   .hero-title { position: relative; text-align: center; margin-top: 42px; }
-  .hero-giant { font-family: var(--display); color: var(--blush); font-size: clamp(5.2rem, 21vw, 19rem); line-height: .82; user-select: none; }
+  .hero-giant { font-family: var(--display); color: var(--blush); font-size: clamp(5.2rem, 20vw, 18.5rem); line-height: .82; user-select: none; white-space: nowrap; }
   .hero-title h1 { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-58%) rotate(-3deg); font-family: var(--script); font-size: clamp(3.2rem, 10.5vw, 9.2rem); line-height: 1; }
   .hero-row { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 40px; align-items: center; margin-top: 56px; }
   .hero-copy p { font-size: 1.15rem; line-height: 1.55; }
