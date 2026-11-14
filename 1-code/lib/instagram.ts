@@ -10,8 +10,8 @@ import { getJSON, setJSON, storeReady } from "@/lib/store";
  */
 /**
  * Two kinds of token work:
- *  - "Instagram login" tokens (60 days, renewed daily here)  ‚Üí graph.instagram.com, account "me"
- *  - "Unified login" system-user tokens (never expire)       ‚Üí graph.facebook.com, account IG_USER_ID
+ *  - "Instagram login" tokens (60 days, renewed daily here)  -> graph.instagram.com, account "me"
+ *  - "Unified login" system-user tokens (never expire)       -> graph.facebook.com, account IG_USER_ID
  * Set IG_USER_ID (the number shown next to your account in the Meta dashboard) for the second kind.
  */
 const IG_USER = process.env.IG_USER_ID || "";
@@ -125,9 +125,9 @@ async function fetchStats(token: string): Promise<{ stats: LiveStats; errors: st
     const all = r.reduce((a, x) => a + x.value, 0);
     if (!all) return;
     const buckets = [
-      { range: "18‚Äì24", keys: ["18-24"] },
-      { range: "25‚Äì34", keys: ["25-34"] },
-      { range: "35‚Äì44", keys: ["35-44"] },
+      { range: "18\u201324", keys: ["18-24"] },
+      { range: "25\u201334", keys: ["25-34"] },
+      { range: "35\u201344", keys: ["35-44"] },
       { range: "45+", keys: ["45-54", "55-64", "65+"] },
     ];
     s.ages = buckets.map((b) => ({ range: b.range, pct: Math.round((count(b.keys) / all) * 100) }));
@@ -172,8 +172,8 @@ async function fetchStats(token: string): Promise<{ stats: LiveStats; errors: st
 /** The daily job: renew the token, fetch fresh stats, merge them over the last good ones, save. */
 export async function updateStats() {
   let token = await currentToken();
-  if (!token) return { ok: false, message: "No Instagram token yet. Add IG_ACCESS_TOKEN in Vercel ‚Üí Settings ‚Üí Environment Variables." };
-  if (!storeReady) return { ok: false, message: "The stats store isn't connected yet. Add Upstash for Redis in Vercel ‚Üí Storage." };
+  if (!token) return { ok: false, message: "No Instagram token yet. Add IG_ACCESS_TOKEN in Vercel -> Settings -> Environment Variables." };
+  if (!storeReady) return { ok: false, message: "The stats store isn't connected yet. Add Upstash for Redis in Vercel -> Storage." };
   token = await refreshToken(token);
   const { stats, errors } = await fetchStats(token);
   const fresh = Object.fromEntries(Object.entries(stats).filter(([, v]) => v !== undefined)) as LiveStats;
