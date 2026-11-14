@@ -709,3 +709,10 @@
 .also-total b{font:400 2.2rem/1 var(--display);color:#c9577f}
 .also-sub{font:italic 400 .82rem var(--serif);color:var(--ink)}
 @media (max-width:760px){.gram-also{grid-template-columns:1fr;justify-items:start}.also-total{justify-self:center}}
+
+/* Envelope intro: once it has been waiting a moment, the seal pulses and the hint glows to invite a tap */
+@keyframes seal-pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.09)}}
+@keyframes hint-glow{0%,100%{opacity:.55}50%{opacity:1}}
+.intro-nudge .envelope .seal{animation:seal-pulse 1.6s ease-in-out infinite;cursor:pointer}
+.intro-nudge .intro-hint{animation:hint-glow 1.6s ease-in-out infinite;color:#c9577f}
+@media (prefers-reduced-motion:reduce){.intro-nudge .envelope .seal,.intro-nudge .intro-hint{animation:none}}
