@@ -266,6 +266,14 @@ export const site = {
     ageNote: "81% of followers are 18–34",
     gender: { women: 55, men: 45 },
     locations: ["Australia", "Ireland", "United States", "United Kingdom"],
+    /**
+     * "Also on" row under the Instagram stats. Numbers refresh daily when the public pages can be read,
+     * otherwise these typed ones are used. showCount: false hides the number (just a cute link).
+     */
+    alsoOn: [
+      { platform: "TikTok", url: "https://www.tiktok.com/@jessicakayleyyy", count: 9407, countLabel: "followers", extra: 658300, extraLabel: "likes", showCount: true },
+      { platform: "YouTube", url: "https://www.youtube.com/@jessicakayleyyy", count: 137, countLabel: "subscribers", tagline: "vlogs from dublin", showCount: false },
+    ],
   },
 
   services: {
