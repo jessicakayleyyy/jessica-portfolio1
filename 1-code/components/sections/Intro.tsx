@@ -5,12 +5,13 @@ import { WaxSeal } from "@/components/collage/Objects";
 import { site } from "@/content/site";
 
 /**
- * "Dear Reader" envelope splash. Plays once per visit (sessionStorage),
+ * "Dear Reader" envelope splash. Stays until the visitor taps the seal (or skips). Plays once per visit (sessionStorage),
  * is skippable, and never shows with reduced motion.
  * Whether to show it is decided by a tiny script in layout.tsx before paint, so there's no flash.
  */
 export function Intro() {
   const [phase, setPhase] = useState<"closed" | "opening" | "gone">("closed");
+  const [nudge, setNudge] = useState(false);
   const started = useRef(false);
   const envRef = useRef<HTMLButtonElement>(null);
 
@@ -30,7 +31,8 @@ export function Intro() {
   useEffect(() => {
     if (!document.documentElement.classList.contains("show-intro")) return;
     envRef.current?.focus({ preventScroll: true });
-    const t = setTimeout(open, 3200);
+    // It waits for the visitor to open it. After a moment the seal starts to gently pulse as a hint.
+    const t = setTimeout(() => setNudge(true), 2500);
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && finish();
     window.addEventListener("keydown", onKey);
     return () => { clearTimeout(t); window.removeEventListener("keydown", onKey); };
@@ -38,7 +40,7 @@ export function Intro() {
   }, []);
 
   return (
-    <div id="intro" className={`intro intro-${phase}`} role="dialog" aria-modal="true" aria-label="Welcome">
+    <div id="intro" className={`intro intro-${phase} ${nudge ? "intro-nudge" : ""}`} role="dialog" aria-modal="true" aria-label="Welcome">
       <button className="intro-skip mono" onClick={finish}>Skip intro</button>
       <button ref={envRef} className="envelope" onClick={open} aria-label="Open the portfolio">
         <span className="envelope-flap" />
