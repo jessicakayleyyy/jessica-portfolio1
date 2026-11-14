@@ -2,10 +2,10 @@ import { Bar } from "@/components/ui/Bar";
 import { CountUp } from "@/components/ui/CountUp";
 import { Donut } from "@/components/ui/Donut";
 import { Reveal } from "@/components/ui/Reveal";
-import { site } from "@/content/site";
+import type { NumbersData } from "@/lib/numbers";
 
-export function Numbers() {
-  const n = site.numbers;
+/** "My Numbers". `n` is the live Instagram stats merged over the hand-typed ones (see lib/numbers.ts) */
+export function Numbers({ n }: { n: NumbersData }) {
   const maxAge = Math.max(...n.ages.map((a) => a.pct));
 
   return (
@@ -55,6 +55,20 @@ export function Numbers() {
               </dl>
             </div>
           </div>
+
+          {n.extras.length > 0 && (
+            <dl className="gram-big gram-extra">
+              {n.extras.map((s) => (
+                <div key={s.label}>
+                  <dt>{s.label}</dt>
+                  <dd>
+                    <CountUp value={s.value} decimals={s.decimals} suffix={s.suffix} comma={s.comma} />
+                    <small>{s.note}</small>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
 
           <div className="gram-locs">
             <div>
