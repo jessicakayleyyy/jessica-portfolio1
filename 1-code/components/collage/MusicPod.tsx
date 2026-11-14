@@ -10,12 +10,13 @@ export type PodAction = "toggle" | "next" | "prev" | "up" | "down";
  * The parent calls `command` (it sits inside a Draggable, so taps come from there).
  * Tracks whose files are missing are skipped automatically.
  */
-export function useMusic(tracks: Track[]) {
+export function useMusic(tracks: Track[], autostart = false) {
   const audio = useRef<HTMLAudioElement | null>(null);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const failed = useRef(new Set<number>());
+  const userPaused = useRef(false);
 
   useEffect(() => {
     if (!tracks.length) return;
@@ -28,8 +29,23 @@ export function useMusic(tracks: Track[]) {
     a.addEventListener("play", onPlay);
     a.addEventListener("pause", onPause);
     audio.current = a;
-    return () => { a.pause(); a.removeEventListener("play", onPlay); a.removeEventListener("pause", onPause); };
-  }, [tracks]);
+
+    // Start the music as soon as the browser allows it. Browsers block sound until the visitor
+    // interacts, so if the first try is blocked, start on their first click, tap or key press
+    // (opening the envelope counts). Never restarts once they have paused it on the iPod.
+    const events = ["pointerdown", "keydown", "touchend"] as const;
+    const start = (e?: Event) => {
+      if (userPaused.current || !a.paused) return stop();
+      if (e && (e.target as Element | null)?.closest?.(".ipod")) return stop(); // the iPod handles its own taps
+      a.play().then(stop).catch(() => {});
+    };
+    const stop = () => events.forEach((ev) => window.removeEventListener(ev, start));
+    if (autostart) {
+      a.preload = "auto";
+      a.play().then(stop).catch(() => events.forEach((ev) => window.addEventListener(ev, start, { passive: true })));
+    }
+    return () => { stop(); a.pause(); a.removeEventListener("play", onPlay); a.removeEventListener("pause", onPause); };
+  }, [tracks, autostart]);
 
   const flash = (m: string) => {
     setMessage(m);
@@ -72,8 +88,8 @@ export function useMusic(tracks: Track[]) {
     else if (action === "up" || action === "down") {
       a.volume = Math.max(0, Math.min(1, a.volume + (action === "up" ? 0.15 : -0.15)));
       flash(`volume ${Math.round(a.volume * 100)}`);
-    } else if (a.paused) play(index);
-    else a.pause();
+    } else if (a.paused) { userPaused.current = false; play(index); }
+    else { userPaused.current = true; a.pause(); }
   };
 
   const t = tracks[index];
