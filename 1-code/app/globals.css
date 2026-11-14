@@ -688,3 +688,24 @@
 .flip-face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .flip-back{position:absolute;inset:0;transform:rotateY(180deg)}
 @media (prefers-reduced-motion:reduce){.flip-inner{transition:none}}
+
+/* "Also on" row under the Instagram stats */
+.gram-also{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px 26px;margin-top:30px;padding:18px 22px;border-radius:18px;background:linear-gradient(120deg,#fbe3ea,#f8eef6 55%,#eaf1fb);box-shadow:inset 0 0 0 1.5px rgba(201,87,127,.14)}
+.also-title{font:400 1.9rem/1 var(--script);color:#c9577f;white-space:nowrap}
+.also-title i{font:normal .8rem var(--sans);vertical-align:middle}
+.also-list{display:flex;flex-wrap:wrap;gap:10px}
+.also-pill{display:inline-flex;align-items:center;gap:9px;padding:8px 14px 8px 8px;border-radius:999px;background:#fff;color:var(--ink);text-decoration:none;box-shadow:0 6px 16px -10px rgba(120,50,70,.45);transition:transform .25s cubic-bezier(.3,1.6,.5,1),box-shadow .25s}
+.also-pill:hover{transform:translateY(-3px) rotate(-1deg);box-shadow:0 12px 22px -12px rgba(120,50,70,.55)}
+.also-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;font-size:.8rem;color:#fff}
+.also-tiktok .also-icon{background:#2a1e1c}
+.also-youtube .also-icon{background:#e9649e}
+.also-name{font:600 .92rem var(--sans)}
+.also-nums{font:400 .78rem var(--sans);color:var(--muted)}
+.also-nums b{font-weight:700;color:var(--ink)}
+.also-nums em{font:italic 400 .95rem var(--serif);color:#b64c74}
+.also-go{font-size:.75rem;color:#c9577f}
+.also-total{display:grid;justify-items:center;gap:2px;min-width:132px;padding:12px 18px;border-radius:50% 50% 48% 52%/55% 50% 50% 45%;background:#fff;rotate:3deg;box-shadow:0 10px 24px -14px rgba(120,50,70,.55)}
+.also-total .mono{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.also-total b{font:400 2.2rem/1 var(--display);color:#c9577f}
+.also-sub{font:italic 400 .82rem var(--serif);color:var(--ink)}
+@media (max-width:760px){.gram-also{grid-template-columns:1fr;justify-items:start}.also-total{justify-self:center}}
