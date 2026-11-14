@@ -8,7 +8,15 @@ import { getJSON, setJSON, storeReady } from "@/lib/store";
  * After the first run the token is renewed daily and kept in the private store, so it never
  * quietly expires. Nothing secret is ever written into the code.
  */
-const API = process.env.IG_API_BASE || "https://graph.instagram.com";
+/**
+ * Two kinds of token work:
+ *  - "Instagram login" tokens (60 days, renewed daily here)  ‚Üí graph.instagram.com, account "me"
+ *  - "Unified login" system-user tokens (never expire)       ‚Üí graph.facebook.com, account IG_USER_ID
+ * Set IG_USER_ID (the number shown next to your account in the Meta dashboard) for the second kind.
+ */
+const IG_USER = process.env.IG_USER_ID || "";
+const ME = IG_USER || "me";
+const API = process.env.IG_API_BASE || (IG_USER ? "https://graph.facebook.com" : "https://graph.instagram.com");
 const TOKEN_KEY = "ig:token";
 const STATS_KEY = "ig:stats";
 
@@ -46,11 +54,13 @@ async function ig<T>(path: string, token: string, params: Record<string, string 
 /** The current token: the auto-renewed one from the store, else the one set on Vercel */
 async function currentToken(): Promise<string | null> {
   const saved = await getJSON<Saved>(TOKEN_KEY);
-  return saved?.token || process.env.IG_ACCESS_TOKEN || null;
+  const fromVercel = process.env.IG_ACCESS_TOKEN?.trim().replace(/^["']|["']$/g, "");
+  return saved?.token || fromVercel || null;
 }
 
 /** Renews the 60-day token (Instagram only allows this once it is at least a day old) */
 async function refreshToken(token: string): Promise<string> {
+  if (IG_USER) return token; // system-user tokens never expire
   const saved = await getJSON<Saved>(TOKEN_KEY);
   const age = saved ? Date.now() - Date.parse(saved.refreshedAt) : Infinity;
   if (age < 20 * 3600 * 1000) return token;
@@ -87,12 +97,12 @@ async function fetchStats(token: string): Promise<{ stats: LiveStats; errors: st
   };
 
   await attempt("profile", async () => {
-    const me = await ig<{ followers_count?: number }>("me", token, { fields: "followers_count,media_count,username" });
+    const me = await ig<{ followers_count?: number }>(ME, token, { fields: "followers_count,media_count,username" });
     if (typeof me.followers_count === "number") s.followers = me.followers_count;
   });
 
   await attempt("account insights", async () => {
-    const d = await ig<Insights>("me/insights", token, { metric: "views,reach,total_interactions", ...range });
+    const d = await ig<Insights>(`${ME}/insights`, token, { metric: "views,reach,total_interactions", ...range });
     s.views30 = total(d, "views");
     s.reach30 = total(d, "reach");
     s.interactions30 = total(d, "total_interactions");
@@ -100,14 +110,14 @@ async function fetchStats(token: string): Promise<{ stats: LiveStats; errors: st
   });
 
   await attempt("non-followers", async () => {
-    const d = await ig<Insights>("me/insights", token, { metric: "views", breakdown: "follow_type", ...range });
+    const d = await ig<Insights>(`${ME}/insights`, token, { metric: "views", breakdown: "follow_type", ...range });
     const r = results(d);
     const all = r.reduce((a, x) => a + x.value, 0);
     const non = r.find((x) => x.dimension_values.includes("NON_FOLLOWER"))?.value;
     if (all && non !== undefined) s.nonFollowerPct = Math.round((non / all) * 100);
   });
 
-  const demo = (breakdown: string) => ig<Insights>("me/insights", token, { metric: "follower_demographics", period: "lifetime", metric_type: "total_value", breakdown });
+  const demo = (breakdown: string) => ig<Insights>(`${ME}/insights`, token, { metric: "follower_demographics", period: "lifetime", metric_type: "total_value", breakdown });
 
   await attempt("ages", async () => {
     const r = results(await demo("age"));
@@ -115,9 +125,9 @@ async function fetchStats(token: string): Promise<{ stats: LiveStats; errors: st
     const all = r.reduce((a, x) => a + x.value, 0);
     if (!all) return;
     const buckets = [
-      { range: "18–24", keys: ["18-24"] },
-      { range: "25–34", keys: ["25-34"] },
-      { range: "35–44", keys: ["35-44"] },
+      { range: "18‚Äì24", keys: ["18-24"] },
+      { range: "25‚Äì34", keys: ["25-34"] },
+      { range: "35‚Äì44", keys: ["35-44"] },
       { range: "45+", keys: ["45-54", "55-64", "65+"] },
     ];
     s.ages = buckets.map((b) => ({ range: b.range, pct: Math.round((count(b.keys) / all) * 100) }));
@@ -137,7 +147,7 @@ async function fetchStats(token: string): Promise<{ stats: LiveStats; errors: st
 
   await attempt("posts", async () => {
     type Media = { id: string; media_product_type?: string; timestamp: string };
-    const list = await ig<{ data: Media[] }>("me/media", token, { fields: "id,media_product_type,media_type,timestamp", limit: 50 });
+    const list = await ig<{ data: Media[] }>(`${ME}/media`, token, { fields: "id,media_product_type,media_type,timestamp", limit: 50 });
     const recent = list.data.filter((m) => Date.parse(m.timestamp) >= since * 1000);
     const posts = (recent.length >= 3 ? recent : list.data.slice(0, 12)).slice(0, 25);
     const reaches: number[] = [];
@@ -162,8 +172,8 @@ async function fetchStats(token: string): Promise<{ stats: LiveStats; errors: st
 /** The daily job: renew the token, fetch fresh stats, merge them over the last good ones, save. */
 export async function updateStats() {
   let token = await currentToken();
-  if (!token) return { ok: false, message: "No Instagram token yet. Add IG_ACCESS_TOKEN in Vercel → Settings → Environment Variables." };
-  if (!storeReady) return { ok: false, message: "The stats store isn't connected yet. Add Upstash for Redis in Vercel → Storage." };
+  if (!token) return { ok: false, message: "No Instagram token yet. Add IG_ACCESS_TOKEN in Vercel ‚Üí Settings ‚Üí Environment Variables." };
+  if (!storeReady) return { ok: false, message: "The stats store isn't connected yet. Add Upstash for Redis in Vercel ‚Üí Storage." };
   token = await refreshToken(token);
   const { stats, errors } = await fetchStats(token);
   const fresh = Object.fromEntries(Object.entries(stats).filter(([, v]) => v !== undefined)) as LiveStats;
