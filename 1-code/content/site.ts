@@ -135,8 +135,9 @@ export const site = {
   about: {
     heading: { before: "It's", script: "Jessica", after: "Latimer!" },
     bio: [
-      "I'm an Australian content creator who moved from Sydney to Dublin in May 2026. On TikTok and Instagram I share food spots, events and the small everyday parts of building a life abroad.",
-      "I've worked on the Scream and Zootopia 2 premieres, Ireland Fashion Week, Red Bull Dance Your Style, Belvedere and Casetify. I went to TikTok Creator Camp, and I have been at the TikTok Awards three years running. Before creating I worked in retail and customer service, so I understand the brand side: what you need from a post, and why it matters.",
+      "Hi, I'm Jess! I'm an Aussie girl who packed up my life in Sydney and moved to Dublin in May 2026, and I've been filming every bit of it since. On TikTok and Instagram you'll find me trying new food spots, getting ready for events, and sharing the little everyday moments of building a whole new life on the other side of the world.",
+      "I've been lucky enough to work with brands I genuinely love, from Mermade Hair and the Zootopia 2 premiere to Ireland Fashion Week, Red Bull Dance Your Style, 818 Tequila and Casetify. I've also been to TikTok Creator Camp, and to the TikTok Awards three years in a row, which still feels a little surreal.",
+      "Before content, I worked in retail and customer service, so I really get the brand side of things. I know what you need from a post and why it matters, and I'll always bring my own ideas so it feels real, never like an ad.",
     ],
     badge: {
       club: "Creator Club",
@@ -154,11 +155,11 @@ export const site = {
     based: "Dublin, Ireland\nOpen to travel across the EU, UK & Australia",
     /** Tapping an interest shows its line underneath */
     interests: [
-      { name: "Food", say: "Every new café, pub and pop-up in Dublin, reviewed honestly." },
-      { name: "Events", say: "Premieres, launches and the afterparty, filmed from the inside." },
+      { name: "Food", say: "Every new café, pub and pop-up in Dublin, with my honest thoughts on all of them." },
+      { name: "Events", say: "Premieres, launches and the afterparty. I'll take you inside with me." },
       { name: "Fashion", say: "Outfits, GRWMs and what I'm wearing to the next thing." },
       { name: "Film", say: "Premiere nights and the films I can't stop talking about." },
-      { name: "Travel", say: "Weekend trips from Dublin and flights home to Sydney." },
+      { name: "Travel", say: "Weekend trips from Dublin, and the long flights home to Sydney." },
     ],
     youtube: "https://www.youtube.com/@jessicakayleyyy",
   },
