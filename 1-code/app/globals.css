@@ -716,3 +716,82 @@
 .intro-nudge .envelope .seal{animation:seal-pulse 1.6s ease-in-out infinite;cursor:pointer}
 .intro-nudge .intro-hint{animation:hint-glow 1.6s ease-in-out infinite;color:#c9577f}
 @media (prefers-reduced-motion:reduce){.intro-nudge .envelope .seal,.intro-nudge .intro-hint{animation:none}}
+
+/* ── Envelope opening: the seal pops off, the flap folds open, a letter rises out and zooms into the site ── */
+.envelope{background:none;perspective:1600px;overflow:visible}
+.intro-opening .envelope{transform:none;outline:none}
+@keyframes env-unshadow{to{box-shadow:0 0 0 transparent}}
+.env-back{position:absolute;inset:0;z-index:0;background:#efe5d3}
+.env-pocket{position:absolute;inset:0;z-index:3;background-color:var(--cream);clip-path:polygon(0 0,50% 56%,100% 0,100% 100%,0 100%);
+  background-image:linear-gradient(to top right,transparent calc(50% - .6px),rgba(42,30,28,.08) 50%,transparent calc(50% + .6px)),linear-gradient(to top left,transparent calc(50% - .6px),rgba(42,30,28,.08) 50%,transparent calc(50% + .6px));
+  background-size:50% 100%;background-position:left,right;background-repeat:no-repeat}
+.envelope-flap{z-index:4;transform-origin:50% 0;backface-visibility:visible}
+.envelope-txt{z-index:5}
+.env-letter{position:absolute;left:7%;right:7%;top:7%;height:86%;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6cqw;
+  background:#fffdf8;border-radius:3px;box-shadow:0 8px 24px -12px rgba(90,40,50,.45);
+  background-image:repeating-linear-gradient(transparent 0 calc(7cqw - 1px),rgba(201,87,127,.09) calc(7cqw - 1px) 7cqw)}
+.env-letter-script{font:400 9cqw/1 var(--script);color:var(--ink)}
+.env-letter-line{width:22%;height:1px;background:#c9577f;opacity:.5}
+.env-letter-sub{font:500 max(.6rem,1.9cqw) var(--mono);letter-spacing:.2em;text-transform:uppercase;color:#c9577f}
+.env-letter-heart{font-size:3.4cqw;color:#e9649e}
+.intro-opening .envelope .seal{animation:seal-off .55s cubic-bezier(.4,0,.6,1) forwards}
+.intro-opening .envelope-txt{animation:env-fade .35s ease forwards}
+.intro-opening .envelope-flap{animation:flap-open .8s .3s cubic-bezier(.45,0,.25,1) forwards}
+.intro-opening .env-pocket,.intro-opening .env-back{animation:env-fade .4s 1.9s ease forwards}
+.intro-opening .env-letter{animation:none}
+.intro-opening .intro-hint,.intro-opening .intro-skip{animation:env-fade .3s ease forwards}
+@keyframes seal-off{0%{transform:translate(-50%,-50%) scale(1)}35%{transform:translate(-50%,-50%) scale(1.18)}100%{transform:translate(-50%,-190%) rotate(-28deg) scale(.55);opacity:0}}
+@keyframes env-fade{to{opacity:0}}
+@keyframes flap-open{0%{transform:rotateX(0);z-index:4}49%{z-index:4}50%{z-index:1}100%{transform:rotateX(180deg);z-index:1;filter:brightness(.93)}}
+@keyframes env-settle{to{transform:translateY(20%)}}
+@keyframes letter-up{to{transform:translateY(-48%)}}
+@keyframes letter-zoom{from{transform:translateY(-48%) scale(1);z-index:7}to{transform:translateY(-30%) scale(1.9);opacity:0;z-index:7}}
+@media (prefers-reduced-motion:reduce){.intro-opening .envelope,.intro-opening .envelope .seal,.intro-opening .envelope-flap,.intro-opening .env-letter{animation:none}}
+
+/* The mini media kit inside the envelope (a small copy of the top of the site) */
+.env-kit{justify-content:flex-start;gap:0;padding:3.2cqw 3.6cqw 0;background:var(--paper);background-image:none;border-radius:4px;overflow:hidden;transform-origin:50% 50%;color:var(--ink)}
+.kit-meta{display:flex;justify-content:space-between;width:100%;font:400 1.15cqw var(--sans)}
+.kit-title{position:relative;display:block;width:100%;margin-top:3.6cqw;text-align:center}
+.kit-giant{display:block;font:400 17.2cqw/.82 var(--display);color:var(--blush);white-space:nowrap}
+.kit-name{position:absolute;left:0;right:0;top:50%;transform:translateY(-58%) rotate(-3deg);font:400 9cqw/1 var(--script);color:var(--ink)}
+.kit-tag{display:block;margin-top:2cqw;font:500 1.1cqw var(--mono);letter-spacing:.2em;text-transform:uppercase;text-align:center}
+
+
+/* While the mini media kit grows, the pink backdrop turns into the site's paper colour so they blend */
+html.show-intro .intro.intro-paper{background:var(--paper);transition:background .7s ease,opacity .8s ease,visibility .8s}
+
+/* Mini media kit: each part is positioned by Intro.tsx to match the real homepage exactly */
+.env-kit{display:block;padding:0;will-change:transform}
+.env-kit>span{position:absolute;left:var(--pad,3cqw);right:var(--pad,3cqw);margin:0}
+.kit-meta{top:3cqw;display:flex;justify-content:space-between}
+.kit-giant{top:8cqw;text-align:center}
+.kit-name{top:12cqw;transform:rotate(-3deg)}
+.kit-tag{top:28cqw}
+html.show-intro .intro.intro-paper{transition:background .9s ease,opacity .75s ease,visibility .75s}
+
+/* ── Card → page hand-over: the pink dissolves outward around the growing card, its edges soften,
+   and it fades into the identical real page underneath (see Intro.tsx) ── */
+@property --reveal{syntax:"<length>";inherits:false;initial-value:0px}
+@property --feather{syntax:"<percentage>";inherits:false;initial-value:0%}
+html.show-intro .intro{background:transparent}
+.intro-bg{position:absolute;inset:0;z-index:0;background:var(--pink)}
+.intro>.envelope{position:relative;z-index:1}
+.intro>.intro-skip,.intro>.intro-hint{z-index:1}
+.intro-bloom .intro-bg{-webkit-mask-image:radial-gradient(circle at var(--rx,50%) var(--ry,40%),transparent var(--reveal),#000 calc(var(--reveal) + 26vmax));mask-image:radial-gradient(circle at var(--rx,50%) var(--ry,40%),transparent var(--reveal),#000 calc(var(--reveal) + 26vmax));animation:bloom 1.4s cubic-bezier(.3,0,.2,1) forwards}
+@keyframes bloom{from{--reveal:0px}to{--reveal:150vmax}}
+.intro-bloom .env-back,.intro-bloom .env-pocket,.intro-bloom .envelope-flap{opacity:0;transition:opacity .55s ease}
+.intro-bloom .envelope{box-shadow:0 0 0 transparent;transition:box-shadow .55s ease}
+.env-kit{transition:--feather 1s ease,opacity .35s ease,background-color .45s ease}
+.env-kit.kit-clear{background-color:transparent}
+.intro-bloom .env-kit{--feather:7%;-webkit-mask-image:linear-gradient(to right,transparent,#000 var(--feather),#000 calc(100% - var(--feather)),transparent),linear-gradient(to bottom,transparent,#000 var(--feather),#000 calc(100% - var(--feather)),transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 var(--feather),#000 calc(100% - var(--feather)),transparent),linear-gradient(to bottom,transparent,#000 var(--feather),#000 calc(100% - var(--feather)),transparent);mask-composite:intersect;box-shadow:none}
+.env-kit.kit-melt{opacity:0}
+html.show-intro .intro.intro-gone{transition:opacity .3s ease,visibility .3s}
+
+/* ── Dive in: the envelope and card zoom towards you and fade; the real page comes into focus underneath ── */
+.intro-bloom .intro-bg{-webkit-mask-image:none;mask-image:none;animation:none;opacity:0;transition:opacity .8s ease}
+.intro-bloom .envelope{transform:scale(3.4);opacity:0;transition:transform .95s cubic-bezier(.65,0,.35,1),opacity .7s .2s ease}
+.intro-bloom .env-back,.intro-bloom .env-pocket,.intro-bloom .envelope-flap{opacity:1}
+.intro-bloom .env-kit{-webkit-mask-image:none;mask-image:none}
+html.show-intro #intro~main{transform:scale(.96);filter:blur(8px);transform-origin:50% 35%;transition:transform 1.1s cubic-bezier(.3,0,.2,1),filter 1s ease}
+html.show-intro #intro.intro-bloom~main{transform:none;filter:none}
+html.show-intro .intro.intro-bloom.intro-gone{transition:opacity .25s ease,visibility .25s}
