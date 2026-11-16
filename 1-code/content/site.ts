@@ -66,7 +66,7 @@ export const site = {
     "Jessica Latimer is an Australian content and UGC creator based in Dublin, making food, events, travel and lifestyle content for brands.",
   year: 2026,
 
-  email: "[email]",
+  email: "jessicakayleyyy@gmail.com",
   socials: [
     { label: "TikTok", handle: "@jessicakayleyyy", url: "https://www.tiktok.com/@jessicakayleyyy" },
     { label: "Instagram", handle: "@jessicakayleyyy", url: "https://www.instagram.com/jessicakayleyyy" },
