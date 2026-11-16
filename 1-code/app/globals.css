@@ -789,9 +789,9 @@ html.show-intro .intro.intro-gone{transition:opacity .3s ease,visibility .3s}
 
 /* ── Dive in: the envelope and card zoom towards you and fade; the real page comes into focus underneath ── */
 .intro-bloom .intro-bg{-webkit-mask-image:none;mask-image:none;animation:none;opacity:0;transition:opacity .8s ease}
-.intro-bloom .envelope{transform:scale(3.4);opacity:0;transition:transform .95s cubic-bezier(.65,0,.35,1),opacity .7s .2s ease}
+.intro-bloom .envelope{transform:scale(2.2);opacity:0;transition:transform .95s cubic-bezier(.5,0,.3,1),opacity .6s .15s ease}
 .intro-bloom .env-back,.intro-bloom .env-pocket,.intro-bloom .envelope-flap{opacity:1}
 .intro-bloom .env-kit{-webkit-mask-image:none;mask-image:none}
-html.show-intro #intro~main{transform:scale(.96);filter:blur(8px);transform-origin:50% 35%;transition:transform 1.1s cubic-bezier(.3,0,.2,1),filter 1s ease}
-html.show-intro #intro.intro-bloom~main{transform:none;filter:none}
+/* Get the zooming layers ready while the card rises, so the dive starts without a hitch (the page itself is left alone: blurring or scaling it is heavy and made pinned bits jump) */
+.intro-opening .envelope,.intro-opening .intro-bg{will-change:transform,opacity}
 html.show-intro .intro.intro-bloom.intro-gone{transition:opacity .25s ease,visibility .25s}
