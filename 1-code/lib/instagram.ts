@@ -19,6 +19,7 @@ const ME = IG_USER || "me";
 const API = process.env.IG_API_BASE || (IG_USER ? "https://graph.facebook.com" : "https://graph.instagram.com");
 const TOKEN_KEY = "ig:token";
 const STATS_KEY = "ig:stats";
+const LATEST_KEY = "ig:latest";
 
 export type LiveStats = {
   followers?: number;
@@ -189,7 +190,7 @@ async function fetchStats(token: string): Promise<{ stats: LiveStats; errors: st
   return { stats: s, errors };
 }
 
-/** The daily job: renew the token, fetch fresh stats, merge them over the last good ones, save. */
+/** The daily job: renew the token, fetch fresh stats, and save them over the last ones, but only where they went up. */
 export async function updateStats() {
   let token = await currentToken();
   if (!token) return { ok: false, message: "No Instagram token yet. Add IG_ACCESS_TOKEN in Vercel -> Settings -> Environment Variables." };
@@ -198,8 +199,19 @@ export async function updateStats() {
   const { stats, errors } = await fetchStats(token);
   const fresh = Object.fromEntries(Object.entries(stats).filter(([, v]) => v !== undefined)) as LiveStats;
   if (!Object.keys(fresh).length) return { ok: false, message: "Instagram didn't return any stats, so the last good numbers were kept.", errors };
+  // Keep today's raw numbers too, just for reference (the site never shows these)
+  await setJSON(LATEST_KEY, { ...fresh, updatedAt: new Date().toISOString() });
   const previous = (await readStats()) ?? {};
-  const merged: LiveStats = { ...previous, ...fresh, updatedAt: new Date().toISOString() };
+  const merged: LiveStats = { ...previous, updatedAt: new Date().toISOString() };
+  const updated: string[] = [];
+  for (const [k, v] of Object.entries(fresh) as [keyof LiveStats, LiveStats[keyof LiveStats]][]) {
+    const old = previous[k];
+    // Number stats (followers, views, reach...) only change if today's number is higher.
+    // Audience info (ages, gender, countries) isn't better or worse, so it always updates.
+    if (typeof v === "number" && typeof old === "number" && v <= old) continue;
+    (merged as Record<string, unknown>)[k] = v;
+    updated.push(k);
+  }
   await setJSON(STATS_KEY, merged);
-  return { ok: true, updated: Object.keys(fresh), errors };
+  return { ok: true, updated, kept: Object.keys(fresh).filter((k) => !updated.includes(k)), errors };
 }
