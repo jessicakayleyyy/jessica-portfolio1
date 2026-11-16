@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Anton, DM_Mono, Hanken_Grotesk, Instrument_Serif, Pinyon_Script } from "next/font/google";
 import { site } from "@/content/site";
+import Script from "next/script";
 import "./globals.css";
 
 const anton = Anton({ weight: "400", subsets: ["latin"], variable: "--font-anton", display: "swap" });
@@ -38,7 +39,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: introScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Visitor stats (Vercel Analytics, turned on in the Vercel dashboard). No cookies, no personal data. */}
+        <Script src="/_vercel/insights/script.js" strategy="afterInteractive" />
+      </body>
     </html>
   );
 }
