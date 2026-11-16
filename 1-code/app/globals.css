@@ -627,7 +627,7 @@
 .mk-script { font: 400 15mm/1 var(--script); color: #C9577F; margin: 3mm 0 0 4mm; }
 .mk-script.light { color: var(--pink); font-size: 14mm; margin: 0; }
 .mk-polas { position: relative; height: 90mm; margin: 4mm 0 4mm; }
-.mk-pola { position: absolute; top: 0; width: 52mm; background: #fff; padding: 3mm 3mm 0; box-shadow: 0 4px 12px rgba(60,30,40,.18); margin: 0; }
+.mk-pola { position: absolute; top: 0; width: 52mm; background: #fff; padding: 3mm 3mm 0; box-shadow: 0 0 0 .25mm rgba(60,30,40,.10), .6mm .8mm 0 rgba(60,30,40,.10); margin: 0; }
 .mk-pola img { display: block; width: 100%; height: 66mm; object-fit: cover; }
 .mk-pola figcaption { font: italic 400 10pt/1 var(--serif); text-align: center; padding: 3mm 0; }
 .mk-pola.p0 { left: 6mm; rotate: -5deg; top: 4mm; }
@@ -635,7 +635,7 @@
 .mk-pola.p2 { left: 122mm; rotate: 6deg; top: 6mm; }
 .mk-tag { font: italic 400 19pt/1.25 var(--serif); max-width: 150mm; margin: 6mm 0 0; }
 .mk-intro { font-size: 10.5pt; line-height: 1.55; max-width: 140mm; margin: 4mm 0 0; }
-.mk-eyebrow { font: 500 7.5pt var(--mono); letter-spacing: .18em; text-transform: uppercase; color: #C9577F; border-bottom: 1px solid rgba(42,30,28,.2); padding-bottom: 2mm; margin: 10mm 0 5mm; display: flex; justify-content: space-between; gap: 6mm; }
+.mk-eyebrow { font: 500 7.5pt var(--mono); letter-spacing: .18em; text-transform: uppercase; color: #C9577F; border-bottom: 1px solid rgba(42,30,28,.2); padding-bottom: 2mm; margin: 10mm 0 5mm; display: flex; justify-content: space-between; gap: 6mm; max-width: none; white-space: nowrap; }
 .mk-eyebrow:first-child { margin-top: 0; }
 .mk-eyebrow small { color: var(--muted); letter-spacing: .1em; font-size: 6.5pt; white-space: nowrap; }
 .mk-h2 { font: 400 30pt/1.05 var(--display); text-transform: uppercase; margin: 0 0 4mm; }
