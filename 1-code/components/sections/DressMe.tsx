@@ -85,7 +85,8 @@ export function DressMe() {
   const dollRef = useRef<SVGSVGElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const ghostRef = useRef<SVGSVGElement | null>(null);
-  const drag = useRef<{ id: string; x: number; y: number; moved: boolean; px: number; py: number; raf: number; ok: boolean } | null>(null);
+  const drag = useRef<{ id: string; x: number; y: number; moved: boolean; px: number; py: number; raf: number; ok: boolean; touch: boolean; armed: boolean; hold: number } | null>(null);
+  const closetRef = useRef<HTMLDivElement>(null);
   const looks = useRef(0);
 
   const worn = wornIds(outfit);
@@ -126,16 +127,36 @@ export function DressMe() {
     const r = stageRef.current?.getBoundingClientRect();
     return !!r && x > r.left && x < r.right && y > r.top && y < r.bottom;
   };
+  // On phones a swipe up/down over the clothes scrolls the page as normal. A piece is only picked up
+  // after pressing and holding it for a moment, or by sliding it sideways. A quick tap still puts it on.
+  const HOLD_MS = 220;
   const onDown = (e: React.PointerEvent<HTMLButtonElement>, id: string) => {
     if (e.button !== 0) return;
-    e.preventDefault(); // stop the browser's own drag / text selection, which would cancel ours and scroll the page
-    drag.current = { id, x: e.clientX, y: e.clientY, moved: false, px: e.clientX, py: e.clientY, raf: 0, ok: false };
-    e.currentTarget.setPointerCapture(e.pointerId);
+    const touch = e.pointerType === "touch";
+    if (!touch) e.preventDefault(); // mouse: stop the browser's own drag / text selection, which would cancel ours
+    const dr = { id, x: e.clientX, y: e.clientY, moved: false, px: e.clientX, py: e.clientY, raf: 0, ok: false, touch, armed: !touch, hold: 0 };
+    drag.current = dr;
+    if (touch) dr.hold = window.setTimeout(() => { if (drag.current === dr && !dr.moved) { dr.armed = true; setLifted(id); } }, HOLD_MS);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ }
   };
+  // While a piece is being carried on a phone, stop the page from scrolling under the finger
+  useEffect(() => {
+    const el = closetRef.current;
+    if (!el) return;
+    const block = (ev: TouchEvent) => { const dr = drag.current; if (dr && dr.touch && (dr.armed || dr.moved)) ev.preventDefault(); };
+    el.addEventListener("touchmove", block, { passive: false });
+    return () => el.removeEventListener("touchmove", block);
+  }, []);
   const onMove = (e: React.PointerEvent<HTMLButtonElement>) => {
     const dr = drag.current;
     if (!dr) return;
-    if (!dr.moved && Math.hypot(e.clientX - dr.x, e.clientY - dr.y) > 6) {
+    const dx = e.clientX - dr.x, dy = e.clientY - dr.y;
+    // Phone: a mostly up/down swipe before the hold kicks in is a scroll, so let the page have it
+    if (!dr.moved && !dr.armed && Math.hypot(dx, dy) > 8) {
+      if (Math.abs(dy) > Math.abs(dx)) { clearTimeout(dr.hold); drag.current = null; return; }
+      dr.armed = true;
+    }
+    if (!dr.moved && dr.armed && Math.hypot(dx, dy) > (dr.touch ? 3 : 6)) {
       dr.moved = true;
       const g = e.currentTarget.querySelector("svg")?.cloneNode(true) as SVGSVGElement | undefined;
       // The floating copy skips the sketchy filters so it glides smoothly
@@ -165,6 +186,7 @@ export function DressMe() {
   const onUp = (e: React.PointerEvent<HTMLButtonElement>) => {
     const dr = drag.current;
     if (!dr) return;
+    clearTimeout(dr.hold);
     if (dr.moved) { if (e.type === "pointerup" && overStage(e.clientX, e.clientY)) put(dr.id, true); }
     else if (e.type === "pointerup") put(dr.id);
     if (dr.raf) cancelAnimationFrame(dr.raf);
@@ -288,7 +310,7 @@ export function DressMe() {
             </div>
           </div>
 
-          <div className="closet">
+          <div className="closet" ref={closetRef}>
             <span className="mono label">Dress me for</span>
             <div className="occasions">
               {d.occasions.map((o) => (
