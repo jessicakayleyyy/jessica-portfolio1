@@ -531,7 +531,7 @@
   .cats button[aria-selected="true"]{color:var(--ink);border-color:var(--ink)}
   .drag-hint{margin-top:14px;font:italic 400 1rem var(--serif);color:var(--muted)}
   .items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 20px;margin-top:8px}
-  .item{position:relative;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;border-radius:6px;cursor:grab;touch-action:none;user-select:none;transition:transform .35s cubic-bezier(.3,1.6,.5,1),background .2s;animation:swingIn .55s cubic-bezier(.3,1.6,.5,1) both}
+  .item{position:relative;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;border-radius:6px;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .35s cubic-bezier(.3,1.6,.5,1),background .2s;animation:swingIn .55s cubic-bezier(.3,1.6,.5,1) both}
   .item:active{cursor:grabbing}
   .item:hover{transform:translateY(-6px) rotate(-2deg);background:rgba(248,220,228,.45)}
   .item.lifted{opacity:.25}
