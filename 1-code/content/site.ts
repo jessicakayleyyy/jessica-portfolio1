@@ -98,10 +98,10 @@ export const site = {
       { src: "/assets/photos/hero-camera-3.jpg", alt: "Jessica dancing in angel wings at a party", label: "photo · party night" },
       { src: "/assets/photos/hero-camera-fw2.jpg", alt: "Jessica dancing with her phone at fashion week", label: "photo · fashion week" },
     ] as Media[],
-    printPhoto: { src: "/assets/photos/hero-polaroid.jpg", alt: "Jessica laughing at a stadium concert in Sydney", label: "photo · jess" } as Media,
+    printPhoto: { src: "/assets/photos/hero-polaroid-dublin.jpg", alt: "Jessica with a pint of Guinness overlooking Dublin", label: "photo · dublin" } as Media,
     printCaption: "Sydney → Dublin",
     /** The back of the polaroid (tap it to flip) */
-    printBack: { src: "/assets/photos/hero-polaroid-dublin.jpg", alt: "Jessica with a pint of Guinness overlooking Dublin", label: "photo · dublin" } as Media,
+    printBack: { src: "/assets/photos/hero-polaroid.jpg", alt: "Jessica laughing at a stadium concert in Sydney", label: "photo · jess" } as Media,
     printBackCaption: "Sydney → Dublin",
     ticket: { top: "Admit one · Row A", title: "TikTok Awards", bottom: "3rd year running", stub: "No. 003" },
     bottleCap: "content, curated",
