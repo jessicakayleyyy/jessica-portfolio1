@@ -229,7 +229,9 @@ export async function updateStats() {
  * Posts to never show in "Latest posts": paste the code from the post's link,
  * e.g. "DSXLYlVD0Vg" from instagram.com/reel/DSXLYlVD0Vg/
  */
-const HIDE_POSTS: string[] = [];
+const HIDE_POSTS: string[] = [
+  "Dd2C_hru1q8", // (Filler post)
+];
 
 /** The words in a caption, for spotting near-identical posts */
 const words = (s = "") => s.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((w) => w.length > 2);
