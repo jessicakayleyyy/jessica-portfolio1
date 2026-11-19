@@ -13,12 +13,14 @@ import { Glitter } from "@/components/ui/Glitter";
 import { SideTabs } from "@/components/ui/SideTabs";
 import { site } from "@/content/site";
 import { getNumbers } from "@/lib/numbers";
+import { readLatestPosts } from "@/lib/instagram";
+import { LatestPosts } from "@/components/sections/LatestPosts";
 
 // Re-check the saved Instagram stats at most once an hour (the daily job also refreshes the page)
 export const revalidate = 3600;
 
 export default async function Home() {
-  const numbers = await getNumbers();
+  const [numbers, posts] = await Promise.all([getNumbers(), readLatestPosts()]);
   return (
     <>
       <Intro />
@@ -35,7 +37,9 @@ export default async function Home() {
         <MemoryBox />
         <Numbers n={numbers} />
         <Services />
-        <ShortForm />
+        <ShortForm>
+          <LatestPosts posts={posts} />
+        </ShortForm>
         <DressMe />
         <Contact />
       </main>
