@@ -250,11 +250,20 @@ const looksAlike = (a: string, b: string) => {
  */
 async function updateLatestPosts(token: string): Promise<{ saved: number; trial: number; similar: number }> {
   type Media = { id: string; media_type?: string; media_product_type?: string; media_url?: string; thumbnail_url?: string; permalink?: string; caption?: string; timestamp: string; is_shared_to_feed?: boolean };
-  const list = await ig<{ data: Media[] }>(`${ME}/media`, token, { fields: "id,media_type,media_product_type,media_url,thumbnail_url,permalink,caption,timestamp,is_shared_to_feed", limit: 50 });
+  // Trial reels can far outnumber real posts, so keep reading further back (up to 400) until there are 6
+  type Page = { data: Media[]; paging?: { next?: string } };
+  const all: Media[] = [];
+  let page: Page | null = await ig<Page>(`${ME}/media`, token, { fields: "id,media_type,media_product_type,media_url,thumbnail_url,permalink,caption,timestamp,is_shared_to_feed", limit: 100 });
+  for (let i = 0; page && i < 4; i++) {
+    all.push(...page.data);
+    if (all.filter((m) => !(m.media_product_type === "REELS" && m.is_shared_to_feed === false)).length >= 12 || !page.paging?.next) break;
+    const res: Response = await fetch(page.paging.next, { cache: "no-store" });
+    page = res.ok ? ((await res.json()) as Page) : null;
+  }
   const posts: LatestPost[] = [];
   const picked: { caption: string; time: number }[] = [];
   let trial = 0, similar = 0;
-  for (const m of list.data) {
+  for (const m of all) {
     const video = m.media_type === "VIDEO";
     const image = video ? m.thumbnail_url : m.media_url;
     if (!image || !m.permalink) continue;
