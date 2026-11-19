@@ -220,23 +220,49 @@ export async function updateStats() {
     updated.push(k);
   }
   await setJSON(STATS_KEY, merged);
-  let posts = 0;
+  let posts: Awaited<ReturnType<typeof updateLatestPosts>> | null = null;
   try { posts = await updateLatestPosts(token); } catch (e) { errors.push(`latest posts: ${(e as Error).message}`); }
   return { ok: true, updated, kept: Object.keys(fresh).filter((k) => !updated.includes(k)), posts, errors };
 }
 
 /**
+ * Posts to never show in "Latest posts": paste the code from the post's link,
+ * e.g. "DSXLYlVD0Vg" from instagram.com/reel/DSXLYlVD0Vg/
+ */
+const HIDE_POSTS: string[] = [];
+
+/** The words in a caption, for spotting near-identical posts */
+const words = (s = "") => s.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((w) => w.length > 2);
+const looksAlike = (a: string, b: string) => {
+  const A = new Set(words(a)), B = new Set(words(b));
+  if (!A.size || !B.size) return false;
+  let shared = 0;
+  for (const w of A) if (B.has(w)) shared++;
+  return shared / Math.min(A.size, B.size) >= 0.5;
+};
+
+/**
  * Saves the 6 newest posts (picture, link, caption, date). Instagram's picture links expire after
  * a few days, so the daily job refreshes them. If Instagram fails, the last saved posts stay up.
+ * Skips trial reels (only shown to non-followers, never on the profile grid), anything in HIDE_POSTS,
+ * and posts whose caption is a near-repeat of one already picked, or that went up within
+ * 2 hours of one already picked (a batch of similar videos).
  */
-async function updateLatestPosts(token: string): Promise<number> {
-  type Media = { id: string; media_type?: string; media_product_type?: string; media_url?: string; thumbnail_url?: string; permalink?: string; caption?: string; timestamp: string };
-  const list = await ig<{ data: Media[] }>(`${ME}/media`, token, { fields: "id,media_type,media_product_type,media_url,thumbnail_url,permalink,caption,timestamp", limit: 12 });
+async function updateLatestPosts(token: string): Promise<{ saved: number; trial: number; similar: number }> {
+  type Media = { id: string; media_type?: string; media_product_type?: string; media_url?: string; thumbnail_url?: string; permalink?: string; caption?: string; timestamp: string; is_shared_to_feed?: boolean };
+  const list = await ig<{ data: Media[] }>(`${ME}/media`, token, { fields: "id,media_type,media_product_type,media_url,thumbnail_url,permalink,caption,timestamp,is_shared_to_feed", limit: 50 });
   const posts: LatestPost[] = [];
+  const picked: { caption: string; time: number }[] = [];
+  let trial = 0, similar = 0;
   for (const m of list.data) {
     const video = m.media_type === "VIDEO";
     const image = video ? m.thumbnail_url : m.media_url;
     if (!image || !m.permalink) continue;
+    if (HIDE_POSTS.includes(postCodeOf(m.permalink))) continue;
+    if (m.media_product_type === "REELS" && m.is_shared_to_feed === false) { trial++; continue; }
+    const time = Date.parse(m.timestamp);
+    if (picked.some((p) => looksAlike(p.caption, m.caption ?? "") || Math.abs(p.time - time) < 2 * 3600_000)) { similar++; continue; }
+    picked.push({ caption: m.caption ?? "", time });
     posts.push({
       id: m.id,
       url: m.permalink,
@@ -248,5 +274,7 @@ async function updateLatestPosts(token: string): Promise<number> {
     if (posts.length === 6) break;
   }
   if (posts.length) await setJSON(POSTS_KEY, posts);
-  return posts.length;
+  return { saved: posts.length, trial, similar };
 }
+
+const postCodeOf = (url: string) => url.match(/instagram\.com\/(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/)?.[1] ?? "";
