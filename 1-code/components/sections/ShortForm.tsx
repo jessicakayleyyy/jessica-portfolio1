@@ -6,8 +6,9 @@ import { Digicam } from "@/components/collage/Digicam";
 import { PhoneMockup } from "@/components/collage/PhoneMockup";
 import { Video } from "@/components/ui/Video";
 import { site } from "@/content/site";
+import type { ReactNode } from "react";
 
-export function ShortForm() {
+export function ShortForm({ children }: { children?: ReactNode }) {
   const sf = site.shortForm;
   const reduce = useReducedMotion();
   const rail = useRef<HTMLDivElement>(null);
@@ -94,6 +95,7 @@ export function ShortForm() {
           ))}
         </div>
         <div className="sf-progress" aria-hidden="true"><motion.i style={{ width }} /></div>
+        {children}
       </div>
     </section>
   );
