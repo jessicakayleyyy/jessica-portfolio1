@@ -20,6 +20,13 @@ const API = process.env.IG_API_BASE || (IG_USER ? "https://graph.facebook.com" :
 const TOKEN_KEY = "ig:token";
 const STATS_KEY = "ig:stats";
 const LATEST_KEY = "ig:latest";
+const POSTS_KEY = "ig:posts";
+
+/** One of Jess's newest Instagram posts, for the "Latest posts" row */
+export type LatestPost = { id: string; url: string; image: string; reel: boolean; caption: string; date: string };
+
+/** The newest posts saved by the daily job (cached for an hour, cleared by the daily job) */
+export const readLatestPosts = () => getJSON<LatestPost[]>(POSTS_KEY, false);
 
 export type LiveStats = {
   followers?: number;
@@ -213,5 +220,33 @@ export async function updateStats() {
     updated.push(k);
   }
   await setJSON(STATS_KEY, merged);
-  return { ok: true, updated, kept: Object.keys(fresh).filter((k) => !updated.includes(k)), errors };
+  let posts = 0;
+  try { posts = await updateLatestPosts(token); } catch (e) { errors.push(`latest posts: ${(e as Error).message}`); }
+  return { ok: true, updated, kept: Object.keys(fresh).filter((k) => !updated.includes(k)), posts, errors };
+}
+
+/**
+ * Saves the 6 newest posts (picture, link, caption, date). Instagram's picture links expire after
+ * a few days, so the daily job refreshes them. If Instagram fails, the last saved posts stay up.
+ */
+async function updateLatestPosts(token: string): Promise<number> {
+  type Media = { id: string; media_type?: string; media_product_type?: string; media_url?: string; thumbnail_url?: string; permalink?: string; caption?: string; timestamp: string };
+  const list = await ig<{ data: Media[] }>(`${ME}/media`, token, { fields: "id,media_type,media_product_type,media_url,thumbnail_url,permalink,caption,timestamp", limit: 12 });
+  const posts: LatestPost[] = [];
+  for (const m of list.data) {
+    const video = m.media_type === "VIDEO";
+    const image = video ? m.thumbnail_url : m.media_url;
+    if (!image || !m.permalink) continue;
+    posts.push({
+      id: m.id,
+      url: m.permalink,
+      image,
+      reel: video || m.media_product_type === "REELS",
+      caption: (m.caption ?? "").split("\n")[0].slice(0, 90),
+      date: m.timestamp,
+    });
+    if (posts.length === 6) break;
+  }
+  if (posts.length) await setJSON(POSTS_KEY, posts);
+  return posts.length;
 }
